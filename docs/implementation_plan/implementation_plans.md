@@ -15,7 +15,8 @@
 ---
 
 ## 📝 핵심 구현 지침 (Guidelines)
-- **DB 스키마 및 API 구현 시:** 코드를 작성할 때는 반드시 최상위 경로에 있는 `erd.md`와 `api_specification.md` 문서를 기준으로 참조하여 스펙이 완전히 일치하도록 구현해야 합니다.
+- **DB 스키마 및 API 구현 시:** 코드를 작성할 때는 반드시 `erd.md`와 `api_specification.md` 문서를 기준으로 참조하여 스펙이 완전히 일치하도록 구현해야 합니다.
+- **TDD 기반 개발:** 모든 기능 구현은 반드시 [test_implementation_plan.md](./test_implementation_plan.md)의 지침에 따라 TDD(Test-Driven Development) 방식으로 진행되어야 합니다.
 
 ---
 
@@ -59,12 +60,10 @@
 - [ ] 마이페이지 UI (개인정보 수정, 목록 조회 탭) 구현
 
 
-### Phase 7: 어드민 페이지 및 테스트 고도화 - [어드민 상세](./admin_implementation_plan.md)
+### Phase 7: 어드민 페이지 - [어드민 상세](./admin_implementation_plan.md)
 - [ ] `GET /api/admin/stats` (총 유저 수 조회) API 구현
 - [ ] `GET /api/admin/studios/pending` (대기 중인 합주실 목록) API 구현
 - [ ] `PATCH /api/admin/studios/:id/status` (합주실 수락/거절 상태 변경) API 구현
 - [ ] 미들웨어를 활용한 어드민 라우트 보호 (Role 검증)
 - [ ] 어드민 대시보드 UI (통계 및 대기열 리스트 렌더링, 수락/거절 버튼 이벤트) 구현
 
-### Phase 8: 테스트 고도화 - [테스트 상세](./test_implementation_plan.md)
-- [ ] Playwright E2E 테스트 및 Vitest 단위 테스트 (테스트 계획에 따라 작성)
