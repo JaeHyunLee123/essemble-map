@@ -7,7 +7,7 @@
 * **누구를 위한 서비스인가요:** 조건에 맞는 합주실을 빠르고 쉽게 찾고자 하는 밴드 및 뮤지션.
 * **주요 제약 및 기술적 고려사항:**
   * 대규모 마커 렌더링을 위한 **마커 클러스터링(Clustering)** 및 **뷰포트 기반 API 쿼리** 필수.
-  * 유저 이미지 제보 시 **직접 파일 업로드** 및 **URL 입력 변환**을 모두 지원하여 Supabase Storage에 일괄 저장.
+  * 유저 이미지 제보 시 **Presigned URL**을 발급받아 클라이언트에서 직접 Supabase Storage로 업로드하여 서버 부하를 최소화.
 * **명시적 비목표 (Non-goals):**
   * 결제, 실시간 예약(Booking) 기능 제외 (초기 MVP 기준 정보 제공 및 커뮤니티 성격에 집중).
 
@@ -17,7 +17,7 @@
 * **배포 및 아키텍처:** 별도의 백엔드 인스턴스 없이 Next.js API Routes 및 Supabase(PostgreSQL + Storage) 기반의 Serverless 구조 사용.
 
 ## 3. 의사 결정 로그 (Decision Log)
-1. **이미지 저장소 일원화:** 외부 URL 이미지 의존성을 끊기 위해, 제출된 이미지 URL은 서버에서 다운로드 후 Supabase Storage에 저장하기로 결정.
+1. **이미지 업로드 최적화 (Presigned URL):** 대용량 파일 또는 다수 이미지 업로드 시 API 라우트의 타임아웃을 방지하기 위해 클라이언트가 S3(Supabase)로 직접 업로드하도록 변경.
 2. **크롤링 스크립트 모노레포 통합:** 유지보수 및 ORM 스키마 공유를 위해 Next.js 레포지토리 내부에 Node.js 기반(Playwright 등) 크롤러 스크립트를 위치시키기로 결정.
 3. **장비 유형 테이블 분리:** 유연한 확장성을 위해 PostgreSQL 고정 ENUM 대신, `EquipmentCategories` 테이블을 별도로 분리하여 어드민이 나중에 유형을 동적으로 추가할 수 있도록 결정.
 
@@ -25,17 +25,17 @@
 
 ### 4.1 데이터 모델 구조 (Drizzle ORM)
 * **Users:** id, username, password(hashed), nickname, role
-* **Studios:** id, name, map_url, description, images(url array), lat, lng, status(pending/active), created_by
-* **Rooms:** id, studio_id, images, price_per_hour, min_capacity, max_capacity, description
+* **Studios:** id, name, map_url, description, images(url array), lat, lng, status(pending/active/deny), deny_reason, created_by
+* **Rooms:** id, studio_id, images, price_per_hour, min_capacity, max_capacity, description, status, deny_reason, created_by
 * **EquipmentCategories:** id, type_name (ex. 드럼, 기타 앰프)
-* **Equipments:** id, room_id, category_id, name, image_url
+* **Equipments:** id, room_id, category_id, name, image_url, status, deny_reason, created_by
 * **Bookmarks:** user_id, studio_id
 
 ### 4.2 아키텍처 및 데이터 흐름
 * **초기 적재 (Crawler):** `scripts/crawler.ts` -> 네이버 지도 파싱 -> 이미지 Supabase Storage 업로드 -> Drizzle ORM으로 DB INSERT.
 * **데이터 조회 (Read):** 지도를 0.3초(Debounce) 이상 정지 시 현재 화면 좌표(Bounding Box) 기준으로 `GET /api/studios/map` 호출. 최소 정보(위경도, ID 등)만 가져와 클라이언트에 캐싱(Tanstack Query) 및 클러스터링 적용.
-* **상세 조회 (Read Detail):** 유저가 특정 마커 클릭 시 `GET /api/studios/:id` 호출하여 해당 합주실의 모든 방과 장비 정보를 조인하여 반환.
-* **제보 (Write):** 폼 제출 시 파일 업로드 또는 URL 다운로드 스트리밍 후 Supabase Storage 적재. DB에 `pending` 상태로 INSERT.
+* **상세 조회 (Read Detail):** 유저가 특정 마커 클릭 시 `GET /api/studios/:id` 호출하여 해당 합주실의 승인된 방과 장비 정보(카테고리 객체 포함)를 조인하여 반환.
+* **제보 (Write):** 클라이언트가 `POST /api/upload/presigned-url`을 통해 업로드 후, JSON 형태로 DB에 `pending` 상태로 INSERT (합주실, 방, 장비 각각 개별 제보 가능).
 
 ### 4.3 테스트 및 모니터링
 * **테스트:** 핵심 유틸리티(이미지 변환, 토큰 검증 등)는 Vitest로 검증. 전체 유저 플로우(로그인 -> 맵 탐색 -> 제보)는 Playwright E2E 테스트 구성.

@@ -44,9 +44,7 @@
     "nickname": "베이스장인"
   }
   ```
-- **Response:**
-  - `201 Created`: 회원가입 성공
-  - `400 Bad Request`: 중복된 아이디 또는 닉네임
+- **Response:** `201 Created` / `400 Bad Request`
 
 ### 2.2 로그인
 - **Endpoint:** `POST /auth/login`
@@ -57,49 +55,19 @@
     "password": "password123!"
   }
   ```
-- **Response:**
-  - `200 OK`: 로그인 성공 (Set-Cookie 포함)
-    ```json
-    {
-      "success": true,
-      "data": {
-        "accessToken": "ey...",
-        "user": {
-          "id": 1,
-          "username": "user123",
-          "nickname": "베이스장인",
-          "role": "USER"
-        }
-      }
-    }
-    ```
-  - `401 Unauthorized`: 아이디 또는 비밀번호 불일치
+- **Response:** `200 OK` (Set-Cookie 포함) / `401 Unauthorized`
 
 ---
 
-## 3. 합주실 API (Studios)
+## 3. 합주실 및 제보 API (Studios)
 
-### 3.1 지도 영역 내 합주실 목록 조회
+### 3.1 지도 영역 내 합주실 목록 조회 (active 상태만 반환)
 - **Endpoint:** `GET /studios/map`
 - **Query Parameters:**
   - `neLat` (float): 북동쪽 위도
   - `neLng` (float): 북동쪽 경도
   - `swLat` (float): 남서쪽 위도
   - `swLng` (float): 남서쪽 경도
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": [
-      {
-        "id": "uuid-1",
-        "name": "낙원 합주실",
-        "lat": 37.1234,
-        "lng": 127.1234
-      }
-    ]
-  }
-  ```
 
 ### 3.2 합주실 상세 정보 조회
 - **Endpoint:** `GET /studios/:id`
@@ -118,14 +86,20 @@
         {
           "id": "room-1",
           "name": "A룸 (대형)",
-          "description": "최대 10인 수용 가능한 넓은 합주실입니다.",
-          "images": ["room_img1.jpg", "room_img2.jpg"],
+          "images": ["room_img1.jpg"],
           "pricePerHour": 15000,
           "minCapacity": 1,
           "maxCapacity": 10,
           "equipments": [
-            { "category": "드럼", "name": "DW Collector's", "imageUrl": "drum_img.jpg" },
-            { "category": "기타 앰프", "name": "Marshall JCM2000", "imageUrl": "amp_img.jpg" }
+            {
+              "id": "equip-1",
+              "category": {
+                "id": "cat-1",
+                "name": "드럼"
+              },
+              "name": "DW Collector's",
+              "imageUrl": "drum_img.jpg"
+            }
           ]
         }
       ]
@@ -133,100 +107,89 @@
   }
   ```
 
-### 3.3 합주실 제보
+### 3.3 합주실 신규 제보
 - **Endpoint:** `POST /studios/submit`
-- **Authentication:** Required (Bearer Token)
-- **Request Body (Multipart/form-data):**
+- **Authentication:** Required
+- **Request Body (JSON):**
   - `name` (string): 합주실 이름
   - `mapUrl` (string, optional): 네이버 지도 URL
   - `description` (string): 설명
-  - `images` (file[], optional): 업로드할 이미지 파일들
-  - `imageUrlStrings` (string[], optional): 외부 이미지 URL 목록
-- **Response:**
-  - `201 Created`: 제보 성공 (상태는 `pending`)
+  - `imageUrls` (string[], optional): Presigned URL을 통해 클라이언트가 업로드 완료한 이미지 URL 목록
+- **Response:** `201 Created`
+
+### 3.4 특정 합주실에 방(Room) 추가 제보
+- **Endpoint:** `POST /studios/:id/rooms`
+- **Authentication:** Required
+- **Request Body (JSON):**
+  - `name` (string): 방 이름
+  - `description` (string)
+  - `pricePerHour` (number)
+  - `minCapacity` (number)
+  - `maxCapacity` (number)
+  - `imageUrls` (string[])
+
+### 3.5 특정 방에 장비(Equipment) 추가 제보
+- **Endpoint:** `POST /rooms/:id/equipments`
+- **Authentication:** Required
+- **Request Body (JSON):**
+  - `categoryId` (string): 장비 카테고리 ID
+  - `name` (string): 장비명
+  - `imageUrl` (string, optional)
 
 ---
 
-## 4. 유저 활동 API (User Actions)
+## 4. 파일 업로드 API (Upload)
 
-### 4.1 북마크 토글
-- **Endpoint:** `POST /studios/:id/bookmark`
-- **Authentication:** Required (Bearer Token)
+### 4.1 Presigned URL 요청
+- **Endpoint:** `POST /upload/presigned-url`
+- **Authentication:** Required
+- **Request Body:**
+  ```json
+  {
+    "filename": "my_image.png",
+    "contentType": "image/png"
+  }
+  ```
 - **Response:**
   ```json
   {
     "success": true,
     "data": {
-      "isBookmarked": true
+      "uploadUrl": "https://...",
+      "publicUrl": "https://..."
     }
   }
   ```
 
 ---
 
-## 5. 마이페이지 API (My Page)
+## 5. 공용 API (Public)
 
-### 5.1 회원 정보 수정 (닉네임 변경)
-- **Endpoint:** `PATCH /user/profile`
-- **Authentication:** Required (Bearer Token)
-- **Request Body:**
-  ```json
-  {
-    "nickname": "새로운닉네임"
-  }
-  ```
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": {
-      "id": "uuid-user-1",
-      "username": "user123",
-      "nickname": "새로운닉네임",
-      "role": "user"
-    }
-  }
-  ```
-
-### 5.2 비밀번호 변경
-- **Endpoint:** `PATCH /user/password`
-- **Authentication:** Required (Bearer Token)
-- **Request Body:**
-  ```json
-  {
-    "currentPassword": "oldPassword123!",
-    "newPassword": "newPassword456!"
-  }
-  ```
-- **Response:**
-  - `200 OK`: 변경 성공
-  - `401 Unauthorized`: 현재 비밀번호 불일치
-
-### 5.3 북마크한 합주실 목록 조회
-- **Endpoint:** `GET /user/bookmarks`
-- **Authentication:** Required (Bearer Token)
+### 5.1 장비 카테고리 목록 조회
+- **Endpoint:** `GET /categories`
 - **Response:**
   ```json
   {
     "success": true,
     "data": [
-      {
-        "id": "uuid-studio-1",
-        "name": "낙원 합주실",
-        "mapUrl": "https://naver.me/...",
-        "description": "최고의 시설...",
-        "images": ["url1.jpg", "url2.jpg"],
-        "lat": 37.1234,
-        "lng": 127.1234,
-        "status": "active"
-      }
+      { "id": "cat-1", "name": "드럼" },
+      { "id": "cat-2", "name": "기타 앰프" }
     ]
   }
   ```
 
-### 5.4 내가 제보한 합주실 내역 조회
+---
+
+## 6. 마이페이지 API (My Page)
+
+### 6.1 북마크토글, 프로필 변경, 비밀번호 변경
+- `POST /studios/:id/bookmark`
+- `PATCH /user/profile`
+- `PATCH /user/password`
+- `GET /user/bookmarks`
+
+### 6.2 내가 제보한 내역 조회
 - **Endpoint:** `GET /user/submissions`
-- **Authentication:** Required (Bearer Token)
 - **Response:**
   ```json
   {
@@ -234,13 +197,11 @@
     "data": [
       {
         "id": "uuid-studio-2",
+        "type": "studio", // "studio" | "room" | "equipment"
         "name": "홍대 연습실",
-        "mapUrl": "https://naver.me/...",
-        "description": "유저 제보 데이터입니다.",
-        "images": ["submission_img1.jpg"],
-        "lat": 37.5678,
-        "lng": 126.9876,
-        "status": "pending"
+        "status": "deny",
+        "denyReason": "해당 주소에 합주실이 존재하지 않습니다.",
+        "createdAt": "2026-05-07T..."
       }
     ]
   }
@@ -248,62 +209,23 @@
 
 ---
 
-## 6. 어드민 API (Admin)
+## 7. 어드민 API (Admin)
 
-모든 어드민 API는 `role === 'admin'`인 사용자만 접근할 수 있습니다. (Bearer Token 및 미들웨어 검증)
+### 7.1 수락 대기 중인 제보 목록 조회
+- **Endpoint:** `GET /admin/submissions/pending`
+- **Response:** (Studios, Rooms, Equipments의 pending 건을 통합 또는 분리하여 제공)
 
-### 6.1 관리자 통계 조회 (현재 유저 수)
-- **Endpoint:** `GET /admin/stats`
-- **Authentication:** Required (Admin)
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": {
-      "totalUsers": 150
-    }
-  }
-  ```
-
-### 6.2 수락 대기 중인 합주실 목록 조회
-- **Endpoint:** `GET /admin/studios/pending`
-- **Authentication:** Required (Admin)
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": [
-      {
-        "id": "uuid-studio-3",
-        "name": "신규 제보 합주실",
-        "mapUrl": "https://naver.me/...",
-        "description": "새롭게 등록된 곳입니다.",
-        "images": ["pending_img1.jpg"],
-        "lat": 37.1111,
-        "lng": 127.1111,
-        "status": "pending",
-        "createdBy": "uuid-user-2"
-      }
-    ]
-  }
-  ```
-
-### 6.3 합주실 제보 상태 변경 (수락/거절)
-- **Endpoint:** `PATCH /admin/studios/:id/status`
-- **Authentication:** Required (Admin)
+### 7.2 제보 상태 변경 (수락/거절)
+- **Endpoint:** `PATCH /admin/submissions/:type/:id/status` (type: studio, room, equipment)
 - **Request Body:**
   ```json
   {
-    "status": "active" // "active" (수락) 또는 "deny" (거절)
+    "status": "deny", // "active" | "deny"
+    "denyReason": "잘못된 정보입니다." // status가 deny일 때만 필요
   }
   ```
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": {
-      "id": "uuid-studio-3",
-      "status": "active"
-    }
-  }
-  ```
+
+### 7.3 장비 카테고리 관리 (CRUD)
+- `POST /admin/categories` (생성)
+- `PATCH /admin/categories/:id` (수정)
+- `DELETE /admin/categories/:id` (삭제)

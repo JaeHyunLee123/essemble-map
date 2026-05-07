@@ -24,6 +24,7 @@ erDiagram
         float lat
         float lng
         string status "pending | active | deny"
+        text deny_reason "반려 사유 (null 허용)"
         uuid created_by FK "USERS(id)"
     }
 
@@ -36,6 +37,9 @@ erDiagram
         integer min_capacity
         integer max_capacity
         text description
+        string status "pending | active | deny"
+        text deny_reason "반려 사유 (null 허용)"
+        uuid created_by FK "USERS(id)"
     }
 
     EQUIPMENT_CATEGORIES {
@@ -49,6 +53,9 @@ erDiagram
         uuid category_id FK "EQUIPMENT_CATEGORIES(id)"
         string name
         string image_url
+        string status "pending | active | deny"
+        text deny_reason "반려 사유 (null 허용)"
+        uuid created_by FK "USERS(id)"
     }
 
     BOOKMARKS {
@@ -67,7 +74,7 @@ erDiagram
 
 ## 2. 주요 관계(Relationships) 설명
 
-* **Users - Studios (1:N):** 유저 한 명이 여러 합주실을 제보(created_by)할 수 있습니다.
+* **Users - Studios / Rooms / Equipments (1:N):** 유저 한 명이 여러 합주실, 방, 장비를 제보(created_by)할 수 있습니다.
 * **Users - Bookmarks (1:N) / Studios - Bookmarks (1:N):** 유저와 합주실 간의 다대다(N:M) 관계를 해소하기 위한 교차 테이블입니다.
 * **Studios - Rooms (1:N):** 하나의 합주실에는 여러 개의 방이 존재할 수 있습니다.
 * **Rooms - Equipments (1:N):** 하나의 방에는 여러 개의 장비가 비치될 수 있습니다.
