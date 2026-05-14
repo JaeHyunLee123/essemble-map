@@ -183,7 +183,7 @@
 ## 6. 마이페이지 API (My Page)
 
 ### 6.1 북마크토글, 프로필 변경, 비밀번호 변경
-- `POST /studios/:id/bookmark`
+- `POST /studios/:id/bookmark` (Active 상태인 합주실만 가능)
 - `PATCH /user/profile`
 - `PATCH /user/password`
 - `GET /user/bookmarks`

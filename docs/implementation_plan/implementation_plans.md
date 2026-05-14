@@ -17,6 +17,7 @@
 ## 📝 핵심 구현 지침 (Guidelines)
 - **DB 스키마 및 API 구현 시:** 코드를 작성할 때는 반드시 `erd.md`와 `api_specification.md` 문서를 기준으로 참조하여 스펙이 완전히 일치하도록 구현해야 합니다.
 - **TDD 기반 개발:** 모든 기능 구현은 반드시 [test_implementation_plan.md](./test_implementation_plan.md)의 지침에 따라 TDD(Test-Driven Development) 방식으로 진행되어야 합니다.
+- **MVP 스코프 제외 대상(Out of Scope):** 일반 유저가 이미 승인된(Active) 합주실, 방, 장비의 "수정"을 제안(Update Request)하는 기능은 이번 버전에서 제외됩니다. 정보의 수정 및 삭제는 관리자(Admin) 권한으로만 가능합니다.
 
 ---
 
