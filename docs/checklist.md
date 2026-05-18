@@ -12,7 +12,7 @@
 - [x] `src/db/schema.ts` ERD 기반 Drizzle 스키마 정의 (Users, Studios, Rooms, EquipmentCategories, Equipments, Bookmarks)
 - [x] `package.json`에 DB 마이그레이션 npm 스크립트 추가
 - [x] `supabase/storage-setup.sql` Storage 버킷 생성 SQL 작성
-- [ ] (사용자) Supabase 프로젝트 콘솔에서 프로젝트 생성
-- [ ] (사용자) `.env.local` 파일에 실제 Supabase 자격증명 입력
-- [ ] (사용자) `npm run db:push` 또는 `npm run db:migrate` 실행으로 DB 스키마 적용
-- [ ] (사용자) Supabase SQL Editor에서 `supabase/storage-setup.sql` 실행
+- [x] (사용자) Supabase 프로젝트 콘솔에서 프로젝트 생성
+- [x] (사용자) `.env` 파일에 실제 Supabase 자격증명 입력
+- [x] (사용자) `npm run db:push` 또는 `npm run db:migrate` 실행으로 DB 스키마 적용
+- [x] (사용자) Supabase SQL Editor에서 `supabase/storage-setup.sql` 실행
