@@ -30,10 +30,10 @@
 - [x] DB 마이그레이션 실행 및 Supabase Storage(버킷) 생성
 
 ### Phase 2: 인증 로직 구현 (Auth) - [상세 문서](./auth_implementation_plan.md)
-- [ ] `POST /api/auth/register` API 구현 (비밀번호 해싱, 닉네임 중복 체크)
-- [ ] `POST /api/auth/login` API 구현 (Access Token JSON 반환, Refresh Token HttpOnly 쿠키 설정)
-- [ ] 클라이언트 전역 상태 설정 (Zustand Auth Store)
-- [ ] 회원가입 및 로그인 모달/페이지 UI 구현
+- [x] `POST /api/auth/register` API 구현 (비밀번호 해싱, 닉네임 중복 체크)
+- [x] `POST /api/auth/login` API 구현 (Access Token JSON 반환, Refresh Token HttpOnly 쿠키 설정)
+- [x] 클라이언트 전역 상태 설정 (Zustand Auth Store)
+- [x] 회원가입 및 로그인 모달/페이지 UI 구현
 
 ### Phase 3: 초기 데이터 적재 (Crawler) - [상세 문서](./crawler_implementation_plan.md)
 - [ ] `scripts/crawler.ts` 설정 및 Playwright 세팅
