@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useAuthStore } from '../authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 // fetch mock
 global.fetch = vi.fn();
