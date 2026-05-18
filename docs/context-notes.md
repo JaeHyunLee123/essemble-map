@@ -34,3 +34,20 @@
 - `docs/api_specification.md`: API 규격 준수
 - `docs/erd.md`: USERS 테이블 스키마 준수
 - `docs/implementation_plan/auth_implementation_plan.md`: 인증 아키텍처 가이드라인
+
+
+# Phase 3: 초기 데이터 적재 (Crawler) 컨텍스트 노트
+
+## 결정 사항 및 이유
+
+### 1. 스크립트 실행 환경
+- `tsx`를 사용하여 스크립트를 직접 실행하도록 결정. TypeScript 설정(tsconfig.json) 및 Drizzle DB 모듈을 별도 컴파일 없이 직관적으로 사용할 수 있기 때문.
+
+### 2. 크롤링 도구
+- 네이버 지도 앱은 동적 렌더링을 심하게 사용하므로 정적 파싱(cheerio 등)으로는 한계가 있음. Playwright를 활용해 브라우저 환경을 직접 구동하고 요소를 스크래핑함.
+
+### 3. 이미지 저장 방식
+- 원본 네이버/외부 이미지 링크를 그대로 DB에 저장하면 엑스박스(403 Forbidden 등)가 발생할 수 있음. 따라서 스크래핑 시 `axios`나 `fetch`로 이미지를 `ArrayBuffer` 형태로 받아, 자체 Supabase Storage에 업로드하고 그 결과를 DB에 저장하도록 함.
+
+### 4. 데이터 적재(Seeding) 방식
+- 모든 크롤링 데이터는 시스템 어드민(`created_by`)의 소유로 처리하고, 즉시 지도에 노출되도록 상태를 `active`로 설정함.

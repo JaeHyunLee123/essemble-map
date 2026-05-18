@@ -36,10 +36,10 @@
 - [x] 회원가입 및 로그인 모달/페이지 UI 구현
 
 ### Phase 3: 초기 데이터 적재 (Crawler) - [상세 문서](./crawler_implementation_plan.md)
-- [ ] `scripts/crawler.ts` 설정 및 Playwright 세팅
-- [ ] 네이버 지도 합주실 검색 및 파싱 로직 작성
-- [ ] 이미지 URL 다운로드 및 Supabase Storage 업로드 유틸리티 작성
-- [ ] 크롤링된 데이터를 Drizzle을 통해 DB에 일괄 삽입(Seeding)
+- [x] `scripts/crawler.ts` 설정 및 Playwright 세팅
+- [x] 네이버 지도 합주실 검색 및 파싱 로직 작성
+- [x] 이미지 URL 다운로드 및 Supabase Storage 업로드 유틸리티 작성
+- [x] 크롤링된 데이터를 Drizzle을 통해 DB에 일괄 삽입(Seeding)
 
 ### Phase 4: 지도 및 마커 렌더링 (Map) - [상세 문서](./map_implementation_plan.md)
 - [ ] 네이버 지도 API 클라이언트 설정 및 화면 렌더링
