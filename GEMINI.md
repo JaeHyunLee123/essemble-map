@@ -1,0 +1,1 @@
+always read @AGENTS.md first
