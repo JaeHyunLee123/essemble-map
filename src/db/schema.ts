@@ -7,6 +7,7 @@ import {
   varchar,
   integer,
   doublePrecision,
+  timestamp,
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
@@ -32,6 +33,8 @@ export const users = pgTable("users", {
   passwordHashed: text("password_hashed").notNull(),
   nickname: varchar("nickname", { length: 100 }).notNull().unique(),
   role: userRoleEnum("role").notNull().default("user"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /** 합주실(스튜디오) 테이블 */
@@ -48,6 +51,8 @@ export const studios = pgTable("studios", {
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /** 방(룸) 테이블 */
@@ -67,12 +72,16 @@ export const rooms = pgTable("rooms", {
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /** 장비 카테고리 테이블 (어드민이 동적으로 관리) */
 export const equipmentCategories = pgTable("equipment_categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   typeName: varchar("type_name", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /** 장비 테이블 */
@@ -91,6 +100,8 @@ export const equipments = pgTable("equipments", {
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /**
@@ -106,6 +117,7 @@ export const bookmarks = pgTable(
     studioId: uuid("studio_id")
       .notNull()
       .references(() => studios.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.studioId] })]
 );

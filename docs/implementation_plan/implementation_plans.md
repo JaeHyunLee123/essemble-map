@@ -25,9 +25,9 @@
 
 ### Phase 1: 환경 설정 및 기본 인프라 구성
 - [x] Next.js 프로젝트 생성 및 기본 패키지 설치 (TailwindCSS, Drizzle ORM 등)
-- [ ] Supabase 프로젝트 생성 및 데이터베이스 연결
-- [ ] Drizzle 스키마 정의 (`Users`, `Studios`, `Rooms`, `EquipmentCategories`, `Equipments`, `Bookmarks`)
-- [ ] DB 마이그레이션 실행 및 Supabase Storage(버킷) 생성
+- [x] Supabase 프로젝트 생성 및 데이터베이스 연결
+- [x] Drizzle 스키마 정의 (`Users`, `Studios`, `Rooms`, `EquipmentCategories`, `Equipments`, `Bookmarks`)
+- [x] DB 마이그레이션 실행 및 Supabase Storage(버킷) 생성
 
 ### Phase 2: 인증 로직 구현 (Auth) - [상세 문서](./auth_implementation_plan.md)
 - [ ] `POST /api/auth/register` API 구현 (비밀번호 해싱, 닉네임 중복 체크)
