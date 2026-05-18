@@ -1,63 +1,61 @@
-import Image from "next/image";
+"use client";
+
+import { useAuthStore } from "@/stores/authStore";
+import { AuthModal } from "@/components/auth/auth-modal";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function Home() {
+  const { user, clearAuth, isInitialized } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      const result = await response.json();
+      if (result.success) {
+        clearAuth();
+        toast.success("로그아웃되었습니다.");
+      }
+    } catch (error) {
+      toast.error("로그아웃 중 오류가 발생했습니다.");
+    }
+  };
+
+  if (!isInitialized) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <p>로딩 중...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black p-8">
+      <main className="flex flex-col items-center gap-8 text-center bg-white dark:bg-zinc-900 p-12 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          합주실 지도 Phase 2
+        </h1>
+        
+        <div className="flex flex-col items-center gap-4 w-full">
+          {user ? (
+            <>
+              <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg w-full">
+                <p className="text-lg font-medium">반가워요, {user.nickname}님!</p>
+                <p className="text-sm text-zinc-500">아이디: {user.username}</p>
+                <p className="text-sm text-zinc-500">역할: {user.role}</p>
+              </div>
+              <Button variant="destructive" onClick={handleLogout} className="w-full">
+                로그아웃
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                서비스를 이용하려면 로그인이 필요합니다.
+              </p>
+              <AuthModal />
+            </>
+          )}
         </div>
       </main>
     </div>
