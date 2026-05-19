@@ -6,19 +6,19 @@ import { useAuthStore } from "@/stores/authStore";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useLogoutMutation } from "@/hooks/queries/useAuthMutations";
 
 export function AuthStatus() {
-  const { user, clearAuth, isInitialized } = useAuthStore();
+  const { user, isInitialized } = useAuthStore();
+  const logoutMutation = useLogoutMutation();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/auth/logout", { method: "POST" });
-      const result = await response.json();
+      const result = await logoutMutation.mutateAsync();
       if (result.success) {
-        clearAuth();
         toast.success("로그아웃되었습니다.");
       }
-    } catch (error) {
+    } catch {
       toast.error("로그아웃 중 오류가 발생했습니다.");
     }
   };

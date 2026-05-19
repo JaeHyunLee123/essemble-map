@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRegisterMutation } from "@/hooks/queries/useAuthMutations";
 
 const registerSchema = z
   .object({
@@ -49,6 +50,7 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const registerMutation = useRegisterMutation();
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -61,17 +63,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   const onSubmit = async (values: RegisterValues) => {
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: values.username,
-          password: values.password,
-          nickname: values.nickname,
-        }),
+      const result = await registerMutation.mutateAsync({
+        username: values.username,
+        password: values.password,
+        nickname: values.nickname,
       });
-
-      const result = await response.json();
 
       if (result.success) {
         toast.success("회원가입이 완료되었습니다. 로그인해주세요.");
@@ -79,7 +75,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       } else {
         toast.error(result.error.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("회원가입 중 오류가 발생했습니다.");
     }
   };

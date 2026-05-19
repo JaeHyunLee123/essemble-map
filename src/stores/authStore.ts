@@ -3,6 +3,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import axios from "axios";
 
 interface User {
   id: string;
@@ -40,8 +41,8 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           // 앱 초기화 시 /api/auth/refresh 호출하여 토큰 복구 시도
-          const response = await fetch("/api/auth/refresh", { method: "POST" });
-          const result = await response.json();
+          const response = await axios.post("/api/auth/refresh");
+          const result = response.data;
 
           if (result.success) {
             set({

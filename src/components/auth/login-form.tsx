@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useLoginMutation } from "@/hooks/queries/useAuthMutations";
 
 const loginSchema = z.object({
   username: z.string().min(1, "아이디를 입력해주세요."),
@@ -31,7 +31,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const loginMutation = useLoginMutation();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -43,22 +43,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   const onSubmit = async (values: LoginValues) => {
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const result = await response.json();
+      const result = await loginMutation.mutateAsync(values);
 
       if (result.success) {
-        setAuth(result.data.user, result.data.accessToken);
         toast.success("로그인되었습니다.");
         onSuccess?.();
       } else {
-        toast.error(result.error.message);
+        toast.error(result?.error?.message || "로그인 중 오류가 발생했습니다.");
       }
-    } catch (error) {
+    } catch {
       toast.error("로그인 중 오류가 발생했습니다.");
     }
   };
