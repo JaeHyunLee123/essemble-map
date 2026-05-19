@@ -11,18 +11,19 @@ import { downloadImageAsBuffer, uploadImageToSupabase } from './utils/storage';
 // ============================================================
 
 const SEARCH_QUERY = '합주실';
-const SEARCH_URL = 'https://map.naver.com/v5/search/' + encodeURIComponent(SEARCH_QUERY);
+// v5 -> p 로 변경, 홍대 근처 좌표 기본값
+const SEARCH_URL = 'https://map.naver.com/p/search/' + encodeURIComponent(SEARCH_QUERY) + '?c=14.00,126.924,37.555,0,dh';
 
 const SELECTORS = {
   // 검색 결과 리스트 관련
-  searchIframe: /searchIframe/,
-  listItems: '.UEzoS',
+  searchIframe: '#searchIframe',
+  listItems: 'li.VLTHu',
   
   // 상세 페이지(Entry) 관련
-  entryIframe: /entry/,
-  title: '.Fc1rA',
-  description: '.zZfO1',
-  images: '.K0HzJ img',
+  entryIframe: '#entryIframe',
+  title: 'h1',
+  description: '.zZfO1', // 설명을 담는 요소 클래스는 변동 가능성이 높음 (fallback 처리됨)
+  images: 'img',
 };
 
 // ============================================================
@@ -52,19 +53,25 @@ function extractPlaceId(url: string): string | null {
 
 /** 상세 페이지 파싱 및 데이터 적재 */
 async function parseStudioDetails(page: Page, adminId: string) {
-  // 상세 페이지 iframe으로 전환
-  const frame = page.frame({ url: SELECTORS.entryIframe }) || page.mainFrame();
+  // 상세 페이지 iframe으로 전환 (FrameLocator 사용)
+  const frameLocator = page.frameLocator(SELECTORS.entryIframe);
+  
+  // iframe 로드 대기
+  await page.waitForTimeout(2000);
 
-  // 상호명 및 설명 파싱 (의미적 셀렉터가 불가능한 경우 상단 SELECTORS 사용)
-  const name = await frame.locator(SELECTORS.title).textContent().catch(() => 'Unknown Studio');
-  const description = await frame.locator(SELECTORS.description).textContent().catch(() => 'No description');
+  // 상호명 파싱
+  const name = await frameLocator.locator(SELECTORS.title).first().textContent().catch(() => 'Unknown Studio');
+  
+  // 설명 파싱
+  const description = await frameLocator.locator(SELECTORS.description).first().textContent().catch(() => 'No description');
   
   // 이미지 파싱 및 업로드
-  const imageUrls = await frame.locator(SELECTORS.images).evaluateAll((imgs) => 
-    imgs.map((img) => (img as HTMLImageElement).src)
+  const imageUrls = await frameLocator.locator(SELECTORS.images).evaluateAll((imgs) => 
+    imgs.map((img) => (img as HTMLImageElement).src).filter(src => src && src.startsWith('http'))
   ).catch(() => []);
 
   const uploadedImages: string[] = [];
+  // 이미지 최대 3장 업로드
   for (const url of imageUrls.slice(0, 3)) {
     try {
       const { buffer, contentType } = await downloadImageAsBuffer(url);
@@ -77,8 +84,24 @@ async function parseStudioDetails(page: Page, adminId: string) {
     }
   }
 
-  const currentUrl = page.url();
-  const placeId = extractPlaceId(currentUrl);
+  // URL에서 장소 ID 및 좌표 추출 시도
+  let placeId = null;
+  let currentUrl = page.url();
+  
+  // iframe URL을 가져올 수 있는지 확인
+  const frames = page.frames();
+  for (const f of frames) {
+    const id = await f.frameElement().then(el => el.getAttribute('id')).catch(() => null);
+    if (id === 'entryIframe') {
+      currentUrl = f.url();
+      placeId = extractPlaceId(currentUrl);
+      break;
+    }
+  }
+
+  if (!placeId) {
+      placeId = extractPlaceId(page.url());
+  }
   
   // 위경도 추출 (URL 파라미터 기반)
   let lat = 37.5665;
@@ -164,7 +187,11 @@ async function main() {
   console.log(`Using admin user: ${admin.username} (${admin.id})`);
 
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
+  // 모바일/데스크톱 뷰포트 및 User-Agent 명시 (Naver Map 렌더링 우회 방지)
+  const context = await browser.newContext({
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    viewport: { width: 1280, height: 800 }
+  });
   const page = await context.newPage();
 
   try {
@@ -172,10 +199,12 @@ async function main() {
     await page.goto(SEARCH_URL, { waitUntil: 'networkidle' });
 
     // 검색 결과 iframe 로드 대기
-    await page.waitForTimeout(3000); 
-    const searchFrame = page.frame({ url: SELECTORS.searchIframe }) || page.mainFrame();
+    await page.waitForTimeout(4000); 
     
+    // FrameLocator 사용
+    const searchFrame = page.frameLocator(SELECTORS.searchIframe);
     const listItems = searchFrame.locator(SELECTORS.listItems);
+    
     const count = await listItems.count();
     const maxItems = Math.min(count, 3);
     
@@ -183,10 +212,14 @@ async function main() {
 
     for (let i = 0; i < maxItems; i++) {
       console.log(`Processing item ${i + 1}/${maxItems}...`);
-      await listItems.nth(i).click();
-      await page.waitForTimeout(2000); // 상세 페이지 로드 대기
+      // a 태그 클릭으로 상세 페이지 오픈
+      await listItems.nth(i).locator('a').first().click();
+      await page.waitForTimeout(3000); // 상세 페이지 로드 대기
       
       await parseStudioDetails(page, admin.id);
+      
+      // 검색 결과 리스트로 포커스 복귀 (필요 시)
+      await page.waitForTimeout(1000);
     }
   } catch (error) {
     console.error('Crawler error:', error);
