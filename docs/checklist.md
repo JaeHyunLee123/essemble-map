@@ -70,15 +70,15 @@
 # Phase 4: 지도 기반 합주실 조회 및 클러스터링 (Map) 체크리스트
 
 ## 1. API 구현 (`GET /api/studios/map`)
-- [ ] API 통합 테스트 코드 작성 (`tests/api/studios/map.test.ts`)
-- [ ] Bounding Box (neLat, neLng, swLat, swLng) 파싱 및 유효성 검사 로직 구현
-- [ ] Drizzle ORM을 활용하여 범위 내 `active` 상태 합주실 필터링 쿼리 구현
-- [ ] API 핸들러 구현 및 테스트 통과
+- [x] API 통합 테스트 코드 작성 (`tests/api/studios/map.test.ts`)
+- [x] Bounding Box (neLat, neLng, swLat, swLng) 파싱 및 유효성 검사 로직 구현
+- [x] Drizzle ORM을 활용하여 범위 내 `active` 상태 합주실 필터링 쿼리 구현
+- [x] API 핸들러 구현 및 테스트 통과
 
 ## 2. 네이버 지도 기본 설정 및 렌더링
-- [ ] 네이버 지도 API Client ID 환경변수 설정 (`.env.local`)
-- [ ] `next/script`를 이용한 SDK 비동기 로드 및 `useRef` 기반 지도 인스턴스 초기화
-- [ ] 지도의 `dragend`, `zoom_changed` 이벤트에 디바운스(300ms) 적용 및 뷰포트 좌표 추출 로직 구현
+- [x] 네이버 지도 API Client ID 환경변수 설정 (`.env.local`)
+- [x] `next/script`를 이용한 SDK 비동기 로드 및 `useRef` 기반 지도 인스턴스 초기화
+- [x] 지도의 `dragend`, `zoom_changed` 이벤트에 디바운스(300ms) 적용 및 뷰포트 좌표 추출 로직 구현
 
 ## 3. 데이터 연동 및 마커 렌더링
 - [ ] `TanStack Query`를 사용하여 뷰포트 좌표 변경 시 API 호출 및 캐싱 로직 구현

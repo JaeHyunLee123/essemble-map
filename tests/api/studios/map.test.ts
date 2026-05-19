@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/studios/map/route';
@@ -23,7 +24,7 @@ describe('GET /api/studios/map', () => {
       { id: '2', name: 'Studio B', lat: 37.55, lng: 126.95 },
     ];
 
-    (db.select as any).mockReturnValue({
+    (db.select as unknown as any).mockReturnValue({
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockResolvedValue(mockStudios),
     });

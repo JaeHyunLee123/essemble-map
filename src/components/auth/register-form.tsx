@@ -73,7 +73,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         toast.success("회원가입이 완료되었습니다. 로그인해주세요.");
         onSuccess?.();
       } else {
-        toast.error(result.error.message);
+        toast.error(result.error?.message || "회원가입에 실패했습니다.");
       }
     } catch {
       toast.error("회원가입 중 오류가 발생했습니다.");
