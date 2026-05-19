@@ -5,13 +5,22 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Script from "next/script";
 import { debounce } from "@/lib/utils";
 
-interface NaverMapProps {
-  onBoundsChange?: (bounds: naver.maps.LatLngBounds) => void;
+interface MapStudio {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
 }
 
-export default function NaverMap({ onBoundsChange }: NaverMapProps) {
+interface NaverMapProps {
+  onBoundsChange?: (bounds: naver.maps.LatLngBounds) => void;
+  studios?: MapStudio[];
+}
+
+export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
+  const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
   const [isLoaded, setIsLoaded] = useState(false);
 
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
@@ -60,6 +69,44 @@ export default function NaverMap({ onBoundsChange }: NaverMapProps) {
       naver.maps.Event.removeListener(zoomChangedListener);
     };
   }, [isLoaded, updateBounds]);
+
+  // 합주실 마커 렌더링
+  useEffect(() => {
+    if (!mapRef.current || !isLoaded) return;
+
+    const currentMap = mapRef.current;
+    const newStudiosMap = new Map(studios.map((s) => [s.id, s]));
+
+    // 1. 제거할 마커 처리
+    for (const [id, marker] of markersRef.current) {
+      if (!newStudiosMap.has(id)) {
+        marker.setMap(null);
+        markersRef.current.delete(id);
+      }
+    }
+
+    // 2. 추가할 마커 처리
+    for (const studio of studios) {
+      if (!markersRef.current.has(studio.id)) {
+        const marker = new naver.maps.Marker({
+          position: new naver.maps.LatLng(studio.lat, studio.lng),
+          map: currentMap,
+          title: studio.name,
+          icon: {
+            content: `
+              <div class="group relative flex items-center justify-center">
+                <div class="bg-indigo-600 text-white px-2 py-1 rounded-full text-[10px] font-bold shadow-md transform group-hover:scale-110 transition-transform whitespace-nowrap">
+                  ${studio.name}
+                </div>
+              </div>
+            `,
+            anchor: new naver.maps.Point(12, 12),
+          },
+        });
+        markersRef.current.set(studio.id, marker);
+      }
+    }
+  }, [studios, isLoaded]);
 
   if (!clientId) {
     return (
