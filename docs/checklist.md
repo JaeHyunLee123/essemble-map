@@ -66,3 +66,28 @@
 - [ ] 전체 크롤러 실행 스크립트 작성 및 로그 확인
 - [ ] Storage에 이미지가 정상 등록되었는지 확인
 - [ ] DB에 연관관계에 맞게 데이터가 적재되었는지 검증
+
+# Phase 4: 지도 기반 합주실 조회 및 클러스터링 (Map) 체크리스트
+
+## 1. API 구현 (`GET /api/studios/map`)
+- [ ] API 통합 테스트 코드 작성 (`tests/api/studios/map.test.ts`)
+- [ ] Bounding Box (neLat, neLng, swLat, swLng) 파싱 및 유효성 검사 로직 구현
+- [ ] Drizzle ORM을 활용하여 범위 내 `active` 상태 합주실 필터링 쿼리 구현
+- [ ] API 핸들러 구현 및 테스트 통과
+
+## 2. 네이버 지도 기본 설정 및 렌더링
+- [ ] 네이버 지도 API Client ID 환경변수 설정 (`.env.local`)
+- [ ] `next/script`를 이용한 SDK 비동기 로드 및 `useRef` 기반 지도 인스턴스 초기화
+- [ ] 지도의 `dragend`, `zoom_changed` 이벤트에 디바운스(300ms) 적용 및 뷰포트 좌표 추출 로직 구현
+
+## 3. 데이터 연동 및 마커 렌더링
+- [ ] `TanStack Query`를 사용하여 뷰포트 좌표 변경 시 API 호출 및 캐싱 로직 구현
+- [ ] 받아온 데이터를 지도 위에 바닐라 JS 커스텀 오버레이 방식으로 마커 렌더링
+- [ ] (임시) 기본 마커 표시 및 데이터 연동 확인
+
+## 4. `supercluster` 클러스터링 구현
+- [ ] `supercluster` 패키지 설치
+- [ ] 합주실 데이터를 GeoJSON Feature 형식으로 변환 및 클러스터링 엔진 연동
+- [ ] 줌 레벨별 클러스터링 마커 렌더링 (숫자 표시 포함)
+- [ ] 클러스터 클릭 시 확장(Zoom-in) 또는 최대 줌 도달 시 목록 모달 표시 로직 구현
+
