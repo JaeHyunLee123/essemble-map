@@ -20,7 +20,7 @@
 
 - **DB 스키마 및 API 구현 시:** 코드를 작성할 때는 반드시 `erd.md`와 `api_specification.md` 문서를 기준으로 참조하여 스펙이 완전히 일치하도록 구현해야 합니다.
 - **TDD 기반 개발:** 모든 기능 구현은 반드시 [test_implementation_plan.md](./test_implementation_plan.md)의 지침에 따라 TDD(Test-Driven Development) 방식으로 진행되어야 합니다.
-- **MVP 스코프 제외 대상(Out of Scope):** 일반 유저가 이미 승인된(Active) 합주실, 방, 장비의 "수정"을 제안(Update Request)하는 기능은 이번 버전에서 제외됩니다. 정보의 수정 및 삭제는 관리자(Admin) 권한으로만 가능합니다.
+- **MVP 스코프 제외 대상(Out of Scope):** 일반 유저가 이미 승인된(Active) 합주실, 방, 장비의 "수정"을 제안(Update Request)하는 기능은 제외됩니다. 또한 이번 MVP 릴리즈 버전에서는 방(Room), 장비(Equipment) 정보의 상세 렌더링 및 개별 제보 기능, 이미지 업로드 전반의 인프라와 API(`POST /api/upload/presigned-url` 등)를 구현 범위에서 보류합니다. 단, 상세 조회 API(`GET /api/studios/:id`)의 JSON 응답 스펙에만 추후 확장을 고려해 `rooms: []` 빈 배열을 유지합니다.
 
 ---
 
@@ -57,11 +57,11 @@
 
 ### Phase 5: 상세 정보 및 제보 (Studio) - [상세 문서](./studio_implementation_plan.md)
 
-- [ ] `GET /api/studios/:id` API 구현 (방 및 장비 정보 조인)
-- [ ] 지도 마커 클릭 시 합주실 상세 정보 모달 UI 구현
+- [ ] `GET /api/studios/:id` API 구현 (단일 합주실 정보 조회, `rooms: []` 빈 배열 응답 유지)
+- [ ] 지도 마커 클릭 시 합주실 상세 정보 모달 UI 구현 (이름, 설명, 지도 링크 버튼으로 구성, 방/장비 및 이미지 영역 배제)
 - [ ] 북마크 기능 API 및 UI 연동 (로그인 유저 전용)
-- [ ] `POST /api/studios/submit` API 구현 (이미지 업로드 및 URL 변환 처리)/
-- [ ] 합주실 제보 폼 UI 구현
+- [ ] `POST /api/studios/submit` API 구현 (네이버 지도 링크 분석 및 리다이렉트 추적, 내부 플레이스 API 조회를 통해 lat/lng 자동 추출 및 저장, 실패 시 400 에러 반환)
+- [ ] 합주실 제보 폼 UI 구현 (합주실 이름, 설명(선택), 네이버 지도 링크 입력 필드로 구성, 이미지 업로드 배제)
 
 ### Phase 6: 마이페이지 - [상세 문서](./user_implementation_plan.md)
 
@@ -72,7 +72,7 @@
 ### Phase 7: 어드민 페이지 - [어드민 상세](./admin_implementation_plan.md)
 
 - [ ] `GET /api/admin/stats` (총 유저 수 조회) API 구현
-- [ ] `GET /api/admin/studios/pending` (대기 중인 합주실 목록) API 구현
-- [ ] `PATCH /api/admin/studios/:id/status` (합주실 수락/거절 상태 변경) API 구현
+- [ ] `GET /api/admin/studios/pending` (대기 중인 합주실 제보 목록 조회) API 구현 (방/장비 제보 배제)
+- [ ] `PATCH /api/admin/studios/:id/status` (합주실 제보 수락/거절 상태 변경) API 구현 (방/장비 제보 배제)
 - [ ] 미들웨어를 활용한 어드민 라우트 보호 (Role 검증)
 - [ ] 어드민 대시보드 UI (통계 및 대기열 리스트 렌더링, 수락/거절 버튼 이벤트) 구현

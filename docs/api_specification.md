@@ -79,87 +79,37 @@
       "id": "uuid-1",
       "name": "낙원 합주실",
       "description": "최고의 시설...",
-      "images": ["url1", "url2"],
+      "images": [],
       "lat": 37.1234,
       "lng": 127.1234,
-      "rooms": [
-        {
-          "id": "room-1",
-          "name": "A룸 (대형)",
-          "images": ["room_img1.jpg"],
-          "pricePerHour": 15000,
-          "minCapacity": 1,
-          "maxCapacity": 10,
-          "equipments": [
-            {
-              "id": "equip-1",
-              "category": {
-                "id": "cat-1",
-                "name": "드럼"
-              },
-              "name": "DW Collector's",
-              "imageUrl": "drum_img.jpg"
-            }
-          ]
-        }
-      ]
+      "rooms": []
     }
   }
   ```
+
 
 ### 3.3 합주실 신규 제보
 - **Endpoint:** `POST /studios/submit`
 - **Authentication:** Required
 - **Request Body (JSON):**
   - `name` (string): 합주실 이름
-  - `mapUrl` (string, optional): 네이버 지도 URL
-  - `description` (string): 설명
-  - `imageUrls` (string[], optional): Presigned URL을 통해 클라이언트가 업로드 완료한 이미지 URL 목록
-- **Response:** `201 Created`
+  - `mapUrl` (string): 네이버 지도 URL (필수)
+  - `description` (string, optional): 설명
+- **Response:** `201 Created` / `400 Bad Request` (네이버 지도 파싱 실패 시)
 
-### 3.4 특정 합주실에 방(Room) 추가 제보
-- **Endpoint:** `POST /studios/:id/rooms`
-- **Authentication:** Required
-- **Request Body (JSON):**
-  - `name` (string): 방 이름
-  - `description` (string)
-  - `pricePerHour` (number)
-  - `minCapacity` (number)
-  - `maxCapacity` (number)
-  - `imageUrls` (string[])
+### 3.4 특정 합주실에 방(Room) 추가 제보 (MVP 제외)
+- **Endpoint:** `POST /studios/:id/rooms` (이번 MVP 버전에서는 연동되지 않으며, 추후 고도화 시점에 구현함)
 
-### 3.5 특정 방에 장비(Equipment) 추가 제보
-- **Endpoint:** `POST /rooms/:id/equipments`
-- **Authentication:** Required
-- **Request Body (JSON):**
-  - `categoryId` (string): 장비 카테고리 ID
-  - `name` (string): 장비명
-  - `imageUrl` (string, optional)
+### 3.5 특정 방에 장비(Equipment) 추가 제보 (MVP 제외)
+- **Endpoint:** `POST /rooms/:id/equipments` (이번 MVP 버전에서는 연동되지 않으며, 추후 고도화 시점에 구현함)
+
 
 ---
 
-## 4. 파일 업로드 API (Upload)
+## 4. 파일 업로드 API (Upload) (MVP 제외)
 
-### 4.1 Presigned URL 요청
-- **Endpoint:** `POST /upload/presigned-url`
-- **Authentication:** Required
-- **Request Body:**
-  ```json
-  {
-    "filename": "my_image.png",
-    "contentType": "image/png"
-  }
-  ```
-- **Response:**
-  ```json
-  {
-    "success": true,
-    "data": {
-      "uploadUrl": "https://...",
-      "publicUrl": "https://..."
-    }
-  }
-  ```
+이번 MVP 버전에서는 이미지 업로드 및 스토리지 연동을 모두 보류하므로, 관련 API(`POST /upload/presigned-url` 등)는 개발 범위에서 제외됩니다.
+
 
 ---
 
@@ -211,12 +161,26 @@
 
 ## 7. 어드민 API (Admin)
 
-### 7.1 수락 대기 중인 제보 목록 조회
-- **Endpoint:** `GET /admin/submissions/pending`
-- **Response:** (Studios, Rooms, Equipments의 pending 건을 통합 또는 분리하여 제공)
+### 7.1 수락 대기 중인 합주실 제보 목록 조회
+- **Endpoint:** `GET /admin/studios/pending`
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id": "uuid-studio-1",
+        "name": "낙원 합주실",
+        "description": "최고의 시설...",
+        "mapUrl": "https://map.naver.com/p/entry/place/12345",
+        "createdAt": "2026-05-20T..."
+      }
+    ]
+  }
+  ```
 
-### 7.2 제보 상태 변경 (수락/거절)
-- **Endpoint:** `PATCH /admin/submissions/:type/:id/status` (type: studio, room, equipment)
+### 7.2 합주실 제보 상태 변경 (수락/거절)
+- **Endpoint:** `PATCH /admin/studios/:id/status`
 - **Request Body:**
   ```json
   {
@@ -225,7 +189,6 @@
   }
   ```
 
-### 7.3 장비 카테고리 관리 (CRUD)
-- `POST /admin/categories` (생성)
-- `PATCH /admin/categories/:id` (수정)
-- `DELETE /admin/categories/:id` (삭제)
+### 7.3 장비 카테고리 관리 (CRUD) (MVP 제외)
+- 이번 MVP 버전에서는 장비 카테고리 관리 기능을 제공하지 않으며, 향후 고도화 시점에 구현함.
+

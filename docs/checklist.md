@@ -91,3 +91,60 @@
 - [x] 줌 레벨별 클러스터링 마커 렌더링 (숫자 표시 포함)
 - [x] 클러스터 클릭 시 확장(Zoom-in) 또는 최대 줌 도달 시 목록 모달 표시 로직 구현
 
+# Phase 5: 상세 정보 및 제보 (Studio) 체크리스트
+
+## 1. 네이버 지도 링크 위경도 추출 라이브러리 (`src/lib/naverMap.ts`)
+- [ ] 네이버 지도 단축 URL(`naver.me`) 리다이렉트 추적 로직 구현
+- [ ] 최종 목적지 URL에서 플레이스 고유 ID(`placeId`) 파싱을 위한 정규표현식 구현
+- [ ] 네이버 지도 내부 API(`https://map.naver.com/v5/api/sites/summary/{placeId}`) fetch 유틸리티 구현
+- [ ] 위경도(x, y -> lat, lng) 파싱 및 유효성 검증 예외 처리 구현
+- [ ] `naverMap.ts` 모듈에 대한 단위 테스트 작성 및 통과
+
+## 2. 합주실 상세 조회 API (`GET /api/studios/:id`)
+- [ ] 단일 합주실 조회 통합 테스트 작성 (`tests/api/studios/detail.test.ts`)
+- [ ] Drizzle을 사용하여 단일 합주실 상세 레코드 조회 쿼리 구현
+- [ ] JSON 응답 포맷에 추후 확장을 고려하여 빈 방 배열(`rooms: []`) 필드를 하드코딩하여 반환하도록 구성
+- [ ] API 핸들러 구현 및 테스트 통과
+
+## 3. 합주실 신규 제보 API (`POST /api/studios/submit`)
+- [ ] 합주실 제보 API 통합 테스트 작성 (`tests/api/studios/submit.test.ts`)
+- [ ] 입력값(`name`, `mapUrl`, `description`)의 유효성 검증 구현
+- [ ] `naverMap.ts`를 활용하여 `mapUrl`로부터 위경도(`lat`, `lng`) 자동 추출 로직 연동
+- [ ] 위경도 추출 실패 시 즉시 `400 Bad Request` 에러(안내 문구 포함)를 반환하는 예외 처리 구현
+- [ ] 위경도 추출 성공 시 `images: []` 빈 배열 및 `status: "pending"` 상태로 DB 저장 구현
+- [ ] API 핸들러 구현 및 테스트 통과
+
+## 4. 프론트엔드 UI 연동
+- [ ] 지도 마커 클릭 시 호출되는 합주실 상세 모달 컴포넌트(`StudioDetailModal`) 구현
+- [ ] 상세 모달 내에서 방, 장비, 이미지 관련 UI 영역은 완전히 배제하고 합주실 이름, 설명, 네이버 지도 외부 링크 버튼만 렌더링하도록 폼 구성
+- [ ] 로그인 유저 전용 북마크 토글 버튼 배치 및 낙관적 업데이트(Optimistic Update) 구현
+- [ ] 합주실 제보 폼 모달 또는 페이지 개발 (이름, 설명, 네이버 지도 링크 입력 필드만 노출하며 이미지 업로드 기능 완전 배제)
+- [ ] 제보 성공 시 안내 모달 및 파싱 실패 시 "유효한 네이버 지도 링크가 아닙니다." 토스트 알림 연동
+
+# Phase 6: 마이페이지 체크리스트
+
+## 1. 프로필 및 비밀번호 변경 API
+- [ ] 닉네임 변경 API (`PATCH /api/user/profile`) 구현 (닉네임 중복 체크 포함)
+- [ ] 비밀번호 변경 API (`PATCH /api/user/password`) 구현 (기존 비밀번호 해시 대조 및 재해싱 포함)
+
+## 2. 북마크 및 제보 내역 조회 API
+- [ ] 내가 북마크한 합주실 목록 조회 API (`GET /api/user/bookmarks`) 구현
+- [ ] 내가 제보한 합주실 내역 조회 API (`GET /api/user/submissions`) 구현 (`pending` 상태 데이터 포함 반환)
+
+## 3. 프론트엔드 UI 구성
+- [ ] 마이페이지 레이아웃 및 탭 UI 구현
+- [ ] 개인정보 수정 폼, 북마크한 합주실 목록 테이블, 내가 제보한 내역 목록 테이블(상태 칩 노출) 연동
+
+# Phase 7: 어드민 페이지 체크리스트
+
+## 1. 어드민 API 구현
+- [ ] 총 유저 수 조회 API (`GET /api/admin/stats`) 구현
+- [ ] 수락 대기 중인 합주실 제보 목록 조회 API (`GET /api/admin/studios/pending`) 구현 (방/장비 제보 조회 로직 완전 배제)
+- [ ] 특정 합주실 상태(active, deny) 수락/반려 처리 API (`PATCH /api/admin/studios/:id/status`) 구현 (반려 시 `deny_reason` 필수 적용)
+
+## 2. 보안 설정 및 어드민 UI 구성
+- [ ] Next.js Middleware를 활용한 `/admin/*` 및 `/api/admin/*` 라우트의 어드민 역할(role === "admin") 검증 및 차단 처리
+- [ ] 어드민 전용 레이아웃 및 대시보드 UI 개발
+- [ ] 수락 대기 중인 합주실 테이블 렌더링 및 개별 행마다 [수락], [거절] 액션 연동 (거절 시 반려 사유 모달 팝업 및 API 호출)
+
+
