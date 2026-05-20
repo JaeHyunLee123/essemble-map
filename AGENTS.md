@@ -185,3 +185,10 @@ This is the step LLMs skip most often after "run tests". They guess from error k
 상황: React(또는 Next.js) 컴포넌트를 작성하거나 기존 코드를 리뷰/리팩토링할 때 사용합니다.
 활용법: 최신 React 패턴, Hooks의 올바른 사용법, 렌더링 성능 최적화, 상태 관리 안티 패턴 방지 등 모범 사례를 적용합니다.
 적용 예시: "이 컴포넌트에서 useEffect가 너무 남용된 것 같은데 React 모범 사례에 맞게 리팩토링해줘."
+
+## 11. Component File Naming Convention (PascalCase)
+
+**모든 컴포넌트 파일 이름은 파스칼케이스(PascalCase)로 유지해야 합니다.**
+
+- 단, `src/components/ui/` 폴더 안에 있는 파일은 shadcn에서 제공한 파일 그대로 사용해야 하므로 이름을 변경하지 않고 예외로 둡니다.
+- 새로 만드는 컴포넌트 파일이나 기존 컴포넌트 파일을 수정할 때는 반드시 이 파스칼케이스 명명 규칙을 준수해야 합니다.
