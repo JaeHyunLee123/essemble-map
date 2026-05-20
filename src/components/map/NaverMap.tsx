@@ -16,11 +16,13 @@ interface MapStudio {
 interface NaverMapProps {
   onBoundsChange?: (bounds: naver.maps.LatLngBounds) => void;
   studios?: MapStudio[];
+  onStudioClick?: (studioId: string) => void;
 }
 
 export default function NaverMap({
   onBoundsChange,
   studios = [],
+  onStudioClick,
 }: NaverMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
@@ -184,6 +186,12 @@ export default function NaverMap({
               anchor: new naver.maps.Point(12, 12),
             },
           });
+
+          naver.maps.Event.addListener(marker, "click", () => {
+            if (studioId) {
+              onStudioClick?.(studioId);
+            }
+          });
         }
         newMarkersMap.set(id, marker);
       }
@@ -277,6 +285,10 @@ export default function NaverMap({
               {selectedClusterStudios.map((studio) => (
                 <div
                   key={studio.id}
+                  onClick={() => {
+                    onStudioClick?.(studio.id);
+                    setSelectedClusterStudios(null);
+                  }}
                   className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer transition-colors group"
                 >
                   <p className="font-semibold text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
