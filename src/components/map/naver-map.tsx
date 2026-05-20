@@ -18,14 +18,19 @@ interface NaverMapProps {
   studios?: MapStudio[];
 }
 
-export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps) {
+export default function NaverMap({
+  onBoundsChange,
+  studios = [],
+}: NaverMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const clusterRef = useRef<Supercluster | null>(null);
   const markersRef = useRef<Map<string | number, naver.maps.Marker>>(new Map());
   const [isLoaded, setIsLoaded] = useState(false);
   const [zoom, setZoom] = useState(14);
-  const [selectedClusterStudios, setSelectedClusterStudios] = useState<MapStudio[] | null>(null);
+  const [selectedClusterStudios, setSelectedClusterStudios] = useState<
+    MapStudio[] | null
+  >(null);
 
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
 
@@ -64,8 +69,16 @@ export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps
     };
 
     // 이벤트 리스너 등록
-    const dragEndListener = naver.maps.Event.addListener(map, "dragend", handleEvent);
-    const zoomChangedListener = naver.maps.Event.addListener(map, "zoom_changed", handleEvent);
+    const dragEndListener = naver.maps.Event.addListener(
+      map,
+      "dragend",
+      handleEvent,
+    );
+    const zoomChangedListener = naver.maps.Event.addListener(
+      map,
+      "zoom_changed",
+      handleEvent,
+    );
 
     // 초기 바운드 전달 (디바운스 없이 즉시)
     updateBounds();
@@ -83,9 +96,14 @@ export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps
     const bounds = mapRef.current.getBounds() as naver.maps.LatLngBounds;
     const sw = bounds.getSW();
     const ne = bounds.getNE();
-    
+
     // [westLng, southLat, eastLng, northLat]
-    const bbox: [number, number, number, number] = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
+    const bbox: [number, number, number, number] = [
+      sw.lng(),
+      sw.lat(),
+      ne.lng(),
+      ne.lat(),
+    ];
     const clusters = clusterRef.current.getClusters(bbox, zoom);
 
     const currentMap = mapRef.current;
@@ -93,7 +111,11 @@ export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps
 
     clusters.forEach((cluster) => {
       const [longitude, latitude] = cluster.geometry.coordinates;
-      const { cluster: isCluster, point_count: pointCount, studioId } = cluster.properties;
+      const {
+        cluster: isCluster,
+        point_count: pointCount,
+        studioId,
+      } = cluster.properties;
       const id = isCluster ? `cluster-${cluster.id}` : studioId;
 
       if (markersRef.current.has(id)) {
@@ -118,23 +140,35 @@ export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps
           });
 
           naver.maps.Event.addListener(marker, "click", () => {
-            const expansionZoom = clusterRef.current?.getClusterExpansionZoom(cluster.id as number) || 21;
-            
+            const expansionZoom =
+              clusterRef.current?.getClusterExpansionZoom(
+                cluster.id as number,
+              ) || 21;
+
             if (expansionZoom > 21) {
               // 최대 줌을 넘어가는 경우 (동일 좌표)
-              const leaves = clusterRef.current?.getLeaves(cluster.id as number, Infinity) || [];
-              const clusterStudios = leaves.map(leaf => {
-                const s = studios.find(st => st.id === leaf.properties.studioId);
-                return s!;
-              }).filter(Boolean);
+              const leaves =
+                clusterRef.current?.getLeaves(cluster.id as number, Infinity) ||
+                [];
+              const clusterStudios = leaves
+                .map((leaf) => {
+                  const s = studios.find(
+                    (st) => st.id === leaf.properties.studioId,
+                  );
+                  return s!;
+                })
+                .filter(Boolean);
               setSelectedClusterStudios(clusterStudios);
             } else {
-              currentMap.morph(new naver.maps.LatLng(latitude, longitude), expansionZoom);
+              currentMap.morph(
+                new naver.maps.LatLng(latitude, longitude),
+                expansionZoom,
+              );
             }
           });
         } else {
           // 개별 합주실 마커
-          const studio = studios.find(s => s.id === studioId);
+          const studio = studios.find((s) => s.id === studioId);
           marker = new naver.maps.Marker({
             position: new naver.maps.LatLng(latitude, longitude),
             map: currentMap,
@@ -205,34 +239,52 @@ export default function NaverMap({ onBoundsChange, studios = [] }: NaverMapProps
   return (
     <>
       <Script
-        src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}`}
+        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`}
         onLoad={() => setIsLoaded(true)}
+        type="text/javascript"
       />
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* 동일 좌표 합주실 목록 모달 */}
       {selectedClusterStudios && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-50">이 위치의 합주실 ({selectedClusterStudios.length})</h3>
-              <button 
+              <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-50">
+                이 위치의 합주실 ({selectedClusterStudios.length})
+              </h3>
+              <button
                 onClick={() => setSelectedClusterStudios(null)}
                 className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
               >
                 <span className="sr-only">닫기</span>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
             <div className="max-h-[60vh] overflow-y-auto p-2">
-              {selectedClusterStudios.map(studio => (
-                <div key={studio.id} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer transition-colors group">
+              {selectedClusterStudios.map((studio) => (
+                <div
+                  key={studio.id}
+                  className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer transition-colors group"
+                >
                   <p className="font-semibold text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                     {studio.name}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-1">클릭하여 상세 정보 보기</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    클릭하여 상세 정보 보기
+                  </p>
                 </div>
               ))}
             </div>
