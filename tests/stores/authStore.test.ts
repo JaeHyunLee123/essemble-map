@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAuthStore } from '@/stores/authStore';
+import axios from 'axios';
 
-// fetch mock
-global.fetch = vi.fn();
+// axios mock
+vi.mock('axios');
 
 describe('useAuthStore', () => {
   beforeEach(() => {
@@ -37,14 +38,14 @@ describe('useAuthStore', () => {
   });
 
   it('initialize 시 refresh API를 호출해야 함', async () => {
-    (global.fetch as any).mockResolvedValue({
-      json: vi.fn().mockResolvedValue({
+    (axios.post as any).mockResolvedValue({
+      data: {
         success: true,
         data: {
           user: { id: 'uuid-1', username: 'testuser', nickname: '테스트', role: 'user' },
           accessToken: 'new_access_token',
         },
-      }),
+      },
     });
 
     await useAuthStore.getState().initialize();
@@ -52,6 +53,7 @@ describe('useAuthStore', () => {
     const state = useAuthStore.getState();
     expect(state.accessToken).toBe('new_access_token');
     expect(state.isInitialized).toBe(true);
-    expect(global.fetch).toHaveBeenCalledWith('/api/auth/refresh', expect.anything());
+    expect(axios.post).toHaveBeenCalledWith('/api/auth/refresh');
   });
 });
+
