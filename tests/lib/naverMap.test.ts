@@ -12,10 +12,16 @@ describe("naverMap 라이브러리 단위 테스트", () => {
     const mockResponse = {
       ok: true,
       json: async () => ({
-        id: "11554946",
-        name: "낙원합주실",
-        x: "127.123456",
-        y: "37.123456",
+        data: {
+          placeDetail: {
+            id: "11554946",
+            name: "낙원합주실",
+            coordinate: {
+              longitude: "127.123456",
+              latitude: "37.123456",
+            },
+          },
+        },
       }),
       url: "https://map.naver.com/p/entry/place/11554946",
     };
@@ -45,10 +51,16 @@ describe("naverMap 라이브러리 단위 테스트", () => {
     const mockSummaryResponse = {
       ok: true,
       json: async () => ({
-        id: "11554946",
-        name: "낙원합주실",
-        x: "127.123456",
-        y: "37.123456",
+        data: {
+          placeDetail: {
+            id: "11554946",
+            name: "낙원합주실",
+            coordinate: {
+              longitude: "127.123456",
+              latitude: "37.123456",
+            },
+          },
+        },
       }),
     };
 

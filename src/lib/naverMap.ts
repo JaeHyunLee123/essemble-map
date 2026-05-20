@@ -62,8 +62,8 @@ export async function parseNaverMapUrl(url: string): Promise<ParseResult> {
 
   const placeId = match[1];
 
-  // 4. 네이버 플레이스 요약 API 호출
-  const summaryApiUrl = `https://map.naver.com/v5/api/sites/summary/${placeId}?lang=ko`;
+  // 4. 네이버 플레이스 요약 API 호출 (최신 /p/api/place/summary 엔드포인트 적용)
+  const summaryApiUrl = `https://map.naver.com/p/api/place/summary/${placeId}`;
   
   try {
     const summaryResponse = await fetch(summaryApiUrl, {
@@ -71,6 +71,7 @@ export async function parseNaverMapUrl(url: string): Promise<ParseResult> {
       headers: {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
+        "Referer": "https://map.naver.com/",
       },
     });
 
@@ -79,13 +80,14 @@ export async function parseNaverMapUrl(url: string): Promise<ParseResult> {
     }
 
     const data = await summaryResponse.json();
+    const placeDetail = data?.data?.placeDetail;
     
-    if (!data || !data.x || !data.y) {
+    if (!placeDetail || !placeDetail.coordinate) {
       throw new InvalidNaverMapUrlError("네이버 플레이스 정보에 좌표가 유효하지 않습니다.");
     }
 
-    const lng = parseFloat(data.x);
-    const lat = parseFloat(data.y);
+    const lng = parseFloat(placeDetail.coordinate.longitude);
+    const lat = parseFloat(placeDetail.coordinate.latitude);
 
     if (isNaN(lng) || isNaN(lat)) {
       throw new InvalidNaverMapUrlError("올바르지 않은 좌표 형식입니다.");
@@ -95,7 +97,7 @@ export async function parseNaverMapUrl(url: string): Promise<ParseResult> {
       lat,
       lng,
       placeId,
-      name: data.name || "알 수 없는 합주실",
+      name: placeDetail.name || "알 수 없는 합주실",
     };
   } catch (error) {
     if (error instanceof InvalidNaverMapUrlError) {
