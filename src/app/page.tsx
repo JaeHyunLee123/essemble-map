@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import NaverMap from "@/components/map/naver-map";
-import { AuthStatus } from "@/components/auth/auth-status";
+import NaverMap from "@/components/map/NaverMap";
+import { AuthStatus } from "@/components/auth/AuthStatus";
 
 import { useStudios } from "@/hooks/queries/useStudios";
 

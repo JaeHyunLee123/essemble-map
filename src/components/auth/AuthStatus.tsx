@@ -3,7 +3,7 @@
 // 사용자의 인증 상태에 따라 로그인/로그아웃 UI를 렌더링하는 클라이언트 컴포넌트
 
 import { useAuthStore } from "@/stores/authStore";
-import { AuthModal } from "@/components/auth/auth-modal";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useLogoutMutation } from "@/hooks/queries/useAuthMutations";

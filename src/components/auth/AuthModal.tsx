@@ -10,8 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { LoginForm } from "./login-form";
-import { RegisterForm } from "./register-form";
+import { LoginForm } from "./LoginForm";
+import { RegisterForm } from "./RegisterForm";
 import { Button } from "@/components/ui/button";
 
 export function AuthModal() {
