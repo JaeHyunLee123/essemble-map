@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import NaverMap from "@/components/map/NaverMap";
 import { AuthStatus } from "@/components/auth/AuthStatus";
 import { useStudios } from "@/hooks/queries/useStudios";
@@ -23,7 +23,7 @@ export default function Home() {
 
   const { data: studios = [] } = useStudios(viewport);
 
-  const handleBoundsChange = (newBounds: naver.maps.LatLngBounds) => {
+  const handleBoundsChange = useCallback((newBounds: naver.maps.LatLngBounds) => {
     const ne = newBounds.getNE();
     const sw = newBounds.getSW();
     
@@ -33,7 +33,7 @@ export default function Home() {
       swLat: sw.lat(),
       swLng: sw.lng(),
     });
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-zinc-50 dark:bg-black overflow-hidden">

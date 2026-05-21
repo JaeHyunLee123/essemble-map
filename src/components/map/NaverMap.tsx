@@ -1,7 +1,7 @@
 // 네이버 지도 SDK를 로드하고 useRef를 통해 직접 제어하는 지도 컴포넌트
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Script from "next/script";
 import { debounce } from "@/lib/utils";
 import Supercluster from "supercluster";
@@ -44,12 +44,19 @@ export default function NaverMap({
     onBoundsChange(mapRef.current.getBounds() as naver.maps.LatLngBounds);
   }, [onBoundsChange]);
 
-  // 디바운스된 업데이트 함수를 Ref에 저장 (렌더링 사이클에서 안정성 유지 및 린트 에러 방지)
-  const debouncedUpdateBoundsRef = useRef<(() => void) | null>(null);
-
+  // 최신 updateBounds를 추적하는 Ref
+  const updateBoundsRef = useRef(updateBounds);
+  
   useEffect(() => {
-    debouncedUpdateBoundsRef.current = debounce(updateBounds, 300);
+    updateBoundsRef.current = updateBounds;
   }, [updateBounds]);
+
+  // 렌더링에 영향 받지 않고 디바운스 타이머가 보존되는 고정 디바운스 함수 생성
+  const debouncedUpdateBounds = useMemo(() => {
+    return debounce(() => {
+      updateBoundsRef.current();
+    }, 300);
+  }, []);
 
   useEffect(() => {
     if (!isLoaded || !mapContainerRef.current || mapRef.current) return;
@@ -65,21 +72,16 @@ export default function NaverMap({
     const map = new naver.maps.Map(mapContainerRef.current, mapOptions);
     mapRef.current = map;
 
-    // 이벤트 리스너에서 호출할 래퍼 함수
-    const handleEvent = () => {
-      debouncedUpdateBoundsRef.current?.();
-    };
-
     // 이벤트 리스너 등록
     const dragEndListener = naver.maps.Event.addListener(
       map,
       "dragend",
-      handleEvent,
+      debouncedUpdateBounds,
     );
     const zoomChangedListener = naver.maps.Event.addListener(
       map,
       "zoom_changed",
-      handleEvent,
+      debouncedUpdateBounds,
     );
 
     // 초기 바운드 전달 (디바운스 없이 즉시)
@@ -89,7 +91,7 @@ export default function NaverMap({
       naver.maps.Event.removeListener(dragEndListener);
       naver.maps.Event.removeListener(zoomChangedListener);
     };
-  }, [isLoaded, updateBounds]);
+  }, [isLoaded, debouncedUpdateBounds, updateBounds]);
 
   // 현재 줌과 바운드에 따라 클러스터 렌더링
   const renderClusters = useCallback(() => {
