@@ -46,7 +46,7 @@ export default function NaverMap({
 
   // 최신 updateBounds를 추적하는 Ref
   const updateBoundsRef = useRef(updateBounds);
-  
+
   useEffect(() => {
     updateBoundsRef.current = updateBounds;
   }, [updateBounds]);

@@ -63,16 +63,18 @@
 - [x] `POST /api/studios/submit` API 구현 (네이버 지도 링크 분석 및 리다이렉트 추적, 내부 플레이스 API 조회를 통해 lat/lng 자동 추출 및 저장, 실패 시 400 에러 반환)
 - [x] 합주실 제보 폼 UI 구현 (합주실 이름, 설명(선택), 네이버 지도 링크 입력 필드로 구성, 이미지 업로드 배제)
 
-### Phase 6: 마이페이지 - [상세 문서](./user_implementation_plan.md)
+### Phase 6: 마이페이지 및 통합 인증 프록시 구현 - [상세 문서](./user_implementation_plan.md)
 
+- [ ] Next.js 16의 `proxy.ts`를 생성하여 마이페이지 및 어드민 보호 라우트 통합 인증 제어 구현
 - [ ] `PATCH /api/user/profile` (닉네임 변경), `PATCH /api/user/password` (비밀번호 변경) API 구현
-- [ ] `GET /api/user/bookmarks` (북마크 목록), `GET /api/user/submissions` (제보 내역) API 구현
-- [ ] 마이페이지 UI (개인정보 수정, 목록 조회 탭) 구현
+- [ ] `GET /api/user/bookmarks` (북마크 목록 - active 필터 적용), `GET /api/user/submissions` (제보 내역 - deny 상태 및 반려 사유 포함) API 구현
+- [ ] 마이페이지 UI (개인정보 수정, 북마크 목록, 제보 내역 탭 - 반려 사유 노출 포함) 구현
 
 ### Phase 7: 어드민 페이지 - [어드민 상세](./admin_implementation_plan.md)
 
 - [ ] `GET /api/admin/stats` (총 유저 수 조회) API 구현
 - [ ] `GET /api/admin/studios/pending` (대기 중인 합주실 제보 목록 조회) API 구현 (방/장비 제보 배제)
 - [ ] `PATCH /api/admin/studios/:id/status` (합주실 제보 수락/거절 상태 변경) API 구현 (방/장비 제보 배제)
-- [ ] 미들웨어를 활용한 어드민 라우트 보호 (Role 검증)
+- [ ] `proxy.ts` 기반의 어드민 라우트 보호 및 Role 검증 연동
 - [ ] 어드민 대시보드 UI (통계 및 대기열 리스트 렌더링, 수락/거절 버튼 이벤트) 구현
+
