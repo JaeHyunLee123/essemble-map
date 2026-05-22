@@ -145,6 +145,20 @@
 - [x] `src/components/SubmissionList.tsx` (제보 목록 및 상태 칩/반려 사유 툴팁) 구현
 - [x] `src/app/mypage/page.tsx` (마이페이지 루트 및 탭 구조) 구현
 
+## 5. 화이트모드 리디자인 및 글로벌 헤더 추가 (추가 요건)
+- [ ] 글로벌 헤더 컴포넌트(`src/components/Header.tsx`) 신규 작성
+- [ ] 루트 레이아웃(`src/app/layout.tsx`)에 글로벌 헤더 추가 및 통합
+- [ ] 메인페이지(`src/app/page.tsx`)의 중복 헤더 및 AuthStatus 플로팅 UI 제거
+- [ ] 마이페이지 루트(`src/app/mypage/page.tsx`) 화이트모드 전환 및 글로벌 헤더 겹침 보완을 위한 패딩 추가
+- [ ] 프로필 수정 폼(`src/components/ProfileEditForm.tsx`) 화이트모드 카드 및 깔끔한 라이트 인풋 필드로 리디자인
+- [ ] 북마크 리스트(`src/components/BookmarkList.tsx`) 화이트모드 카드 및 라이트 톤 호버 버튼 리디자인
+- [ ] 제보 내역 리스트(`src/components/SubmissionList.tsx`) 화이트모드 카드 및 은은한 파스텔 톤 상태 배지 리디자인
+- [ ] 전체 화이트모드 UI 및 헤더 인증(로그인, 로그아웃, 제보 모달 연동) 기능 매뉴얼 검증 완료
+- [ ] 전체 Vitest 테스트 스위트 무결함 검증 통과
+- [ ] 마이페이지 복귀 시 지도 미렌더링 오류 수정
+    - [ ] window.naver 전역 객체 체크를 통한 자동 지도 마운트 로직 작성
+    - [ ] 마이페이지 이동 후 재접속 시 정상 지도 노출 여부 수동 검증 완료
+
 # Phase 7: 어드민 페이지 체크리스트
 
 ## 1. 어드민 API 구현

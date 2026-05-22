@@ -28,7 +28,9 @@ export default function NaverMap({
   const mapRef = useRef<naver.maps.Map | null>(null);
   const clusterRef = useRef<Supercluster | null>(null);
   const markersRef = useRef<Map<string | number, naver.maps.Marker>>(new Map());
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(() => {
+    return typeof window !== "undefined" && !!(window as any).naver?.maps;
+  });
   const [zoom, setZoom] = useState(14);
   const [selectedClusterStudios, setSelectedClusterStudios] = useState<
     MapStudio[] | null
