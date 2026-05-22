@@ -123,17 +123,27 @@
 
 # Phase 6: 마이페이지 체크리스트
 
-## 1. 프로필 및 비밀번호 변경 API
-- [ ] 닉네임 변경 API (`PATCH /api/user/profile`) 구현 (닉네임 중복 체크 포함)
-- [ ] 비밀번호 변경 API (`PATCH /api/user/password`) 구현 (기존 비밀번호 해시 대조 및 재해싱 포함)
+## 1. 프로필 및 비밀번호 변경 API (TDD)
+- [x] `tests/api/user/profile.test.ts` 작성 (닉네임 변경 및 중복 체크)
+- [x] `src/app/api/user/profile/route.ts` 구현 및 테스트 통과
+- [x] `tests/api/user/password.test.ts` 작성 (비밀번호 변경 및 bcrypt 검증)
+- [x] `src/app/api/user/password/route.ts` 구현 및 테스트 통과
 
-## 2. 북마크 및 제보 내역 조회 API
-- [ ] 내가 북마크한 합주실 목록 조회 API (`GET /api/user/bookmarks`) 구현
-- [ ] 내가 제보한 합주실 내역 조회 API (`GET /api/user/submissions`) 구현 (`pending` 상태 데이터 포함 반환)
+## 2. 북마크 및 제보 내역 조회 API (TDD)
+- [x] `tests/api/user/bookmarks.test.ts` 작성 (active 합주실 북마크 목록 이너조인 조회)
+- [x] `src/app/api/user/bookmarks/route.ts` 구현 및 테스트 통과
+- [x] `tests/api/user/submissions.test.ts` 작성 (반려 사유 및 type: studio 포함 제보 내역 조회)
+- [x] `src/app/api/user/submissions/route.ts` 구현 및 테스트 통과
 
-## 3. 프론트엔드 UI 구성
-- [ ] 마이페이지 레이아웃 및 탭 UI 구현
-- [ ] 개인정보 수정 폼, 북마크한 합주실 목록 테이블, 내가 제보한 내역 목록 테이블(상태 칩 노출) 연동
+## 3. 통합 인증 프록시 (TDD)
+- [x] `tests/proxy.test.ts` 작성 (통합 인증 프록시 동작 검증)
+- [x] `src/proxy.ts` (Next.js 16 Proxy) 구현 및 테스트 통과
+
+## 4. 프론트엔드 UI 구성 (PascalCase)
+- [x] `src/components/ProfileEditForm.tsx` (개인정보 수정 폼) 구현
+- [x] `src/components/BookmarkList.tsx` (북마크 리스트) 구현
+- [x] `src/components/SubmissionList.tsx` (제보 목록 및 상태 칩/반려 사유 툴팁) 구현
+- [x] `src/app/mypage/page.tsx` (마이페이지 루트 및 탭 구조) 구현
 
 # Phase 7: 어드민 페이지 체크리스트
 

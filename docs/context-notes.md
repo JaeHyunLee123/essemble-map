@@ -95,4 +95,21 @@
 - 방과 장비 제보가 이번 MVP에서 제외됨에 따라 어드민 제보 대기열 및 수락/거절 API를 오직 합주실(`studios`) 기준으로 축소 및 단순화함. `submissions/:type/:id` 경로 대신 `studios/:id/status` 경로를 적용하여 보일러플레이트 코드를 줄임.
 - 마이페이지 내 제보 내역 조회 API(`GET /api/user/submissions`) 역시 합주실 제보 건만 쿼리하도록 단순화함.
 
+### 2. Edge Runtime 호환 통합 인증 프록시 (Next.js 16 Proxy)
+- `src/proxy.ts`는 V8 Edge Sandbox 환경에서 작동하므로 Node.js의 내장 모듈에 의존하는 `jsonwebtoken` 패키지 사용 시 컴파일 및 실행 타임 에러가 발생함.
+- 이를 우회하기 위해, 외부 라이브러리 없이 순수 JavaScript(atob, decodeURIComponent)만을 사용하는 초경량 JWT Base64 디코딩 및 만료일(`exp`), 권한(`role`)을 검증하는 커스텀 Edge-safe 파서를 설계하여 성능과 규격 안전성을 극대화함.
+
+### 3. 북마크 목록 조회 시 이너조인(Inner Join) 및 active 조건 필터링
+- 유저가 마이페이지에서 북마크한 합주실을 볼 때, DB 성능을 최적화하기 위해 `bookmarks`와 `studios` 테이블을 이너조인(Inner Join) 처리하여 조회함.
+- 이때 승인 완료(`active`) 상태가 아닌 임시 저장 혹은 반려된 합주실 정보가 노출되지 않도록 `studios.status = 'active'` 필터링을 강력하게 적용함.
+
+### 4. 제보 내역 조회 시 확장성 유지
+- 현재 MVP 범위에서는 합주실 제보만 이루어지나, 미래의 방(Room)/장비(Equipment) 제보 확장에 대비하여 각 항목마다 `"type": "studio"` 기본 고정 속성을 탑재하여 안전하게 반환함.
+- 반려(`deny`)된 제보 건에 대해서는 반려 사유(`denyReason`)를 반환 객체에 명시적으로 추가하여, 프론트엔드 UI 카드에서 유저에게 즉각 가이드 텍스트 형태로 아름답게 시각화함.
+
+### 5. 프론트엔드 UI 컴포넌트 구조화 및 PascalCase 명규칙
+- `ProfileEditForm`, `BookmarkList`, `SubmissionList` 등 모든 신규 컴포넌트의 파일명을 PascalCase로 구성하여 Next.js 모범 사례를 준수함.
+- 각 컴포넌트에는 세련된 어두운 유리모사(Glassmorphism) 효과와 부드러운 호버링 상태 변화를 주어 극도의 시각적 고품격을 달성함.
+
+
 
