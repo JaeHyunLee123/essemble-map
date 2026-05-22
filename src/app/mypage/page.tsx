@@ -30,10 +30,10 @@ export default function MyPage() {
 
   if (!isInitialized || !user) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center pt-20">
         <div className="flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-full border-t-2 border-emerald-500 border-r-2 border-r-transparent animate-spin" />
-          <p className="text-zinc-400 text-sm font-medium">페이지 정보를 준비 중입니다.</p>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">페이지 정보를 준비 중입니다.</p>
         </div>
       </div>
     );
@@ -47,22 +47,22 @@ export default function MyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-20">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 pb-20 pt-16">
       {/* 백그라운드 디자인 그라디언트 오버레이 */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[350px] bg-gradient-to-b from-emerald-500/5 via-teal-500/0 to-transparent pointer-events-none blur-3xl" />
 
       {/* 헤더 섹션 */}
-      <div className="relative pt-16 pb-10 border-b border-zinc-900 bg-zinc-950/40 backdrop-blur-md">
+      <div className="relative pt-12 pb-10 border-b border-zinc-200/80 dark:border-zinc-900 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-6 text-center sm:text-left flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 w-fit mx-auto sm:mx-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 w-fit mx-auto sm:mx-0">
               <Sparkles className="w-3.5 h-3.5" />
               마이페이지
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-400 bg-clip-text text-transparent">
-              안녕하세요, <span className="from-emerald-400 to-teal-400 bg-gradient-to-r bg-clip-text text-transparent">{user.nickname}</span>님
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-zinc-800 via-zinc-900 to-black dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-400 bg-clip-text text-transparent">
+              안녕하세요, <span className="from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-gradient-to-r bg-clip-text text-transparent font-black">{user.nickname}</span>님
             </h1>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               개인 정보를 안전하게 관리하고 내가 활동한 북마크와 합주실 제보 내역을 확인하세요.
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function MyPage() {
       <div className="max-w-5xl mx-auto px-6 mt-10 space-y-8">
         {/* 네온 유리 탭 바 */}
         <div className="flex justify-center sm:justify-start">
-          <div className="flex gap-1.5 p-1.5 rounded-2xl bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/80 w-full sm:w-auto shadow-inner shadow-zinc-950/50">
+          <div className="flex gap-1.5 p-1.5 rounded-2xl bg-white/70 dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200/80 dark:border-zinc-800/80 w-full sm:w-auto shadow-sm">
             {tabs.map((tab) => {
               const TabIcon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -81,10 +81,10 @@ export default function MyPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 w-full sm:w-auto cursor-pointer outline-none ${
+                  className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-300 w-full sm:w-auto cursor-pointer outline-none ${
                     isActive
-                      ? "bg-zinc-800 text-emerald-400 shadow-md border border-zinc-700/50"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30"
+                      ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-md border border-zinc-200/60 dark:border-zinc-700/50"
+                      : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-white/40 dark:hover:bg-zinc-800/30"
                   }`}
                 >
                   <TabIcon className={`w-4 h-4 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />

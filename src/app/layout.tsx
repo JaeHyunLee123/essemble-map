@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import Header from "@/components/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,13 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100">
         <QueryProvider>
           <AuthInitializer />
-          {children}
+          <Header />
+          <div className="flex-1 flex flex-col">
+            {children}
+          </div>
           <Toaster position="top-center" richColors />
         </QueryProvider>
       </body>

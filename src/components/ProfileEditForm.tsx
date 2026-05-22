@@ -111,44 +111,44 @@ export default function ProfileEditForm() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto p-1">
       {/* 닉네임 변경 카드 */}
-      <div className="relative group overflow-hidden rounded-2xl bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-700/80 hover:shadow-2xl hover:shadow-emerald-950/10">
+      <div className="relative group overflow-hidden rounded-2xl bg-white dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/80 dark:border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-300/80 dark:hover:border-zinc-700/80 hover:shadow-xl hover:shadow-emerald-500/5">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/40 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
             <UserRound className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-zinc-100">닉네임 변경</h3>
-            <p className="text-xs text-zinc-400">커뮤니티 및 제보 시 노출될 별명입니다.</p>
+            <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">닉네임 변경</h3>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">커뮤니티 및 제보 시 노출될 별명입니다.</p>
           </div>
         </div>
 
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-2">현재 아이디</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">현재 아이디</label>
             <input
               type="text"
               disabled
               value={user?.username || ""}
-              className="w-full px-4 py-3 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-500 text-sm cursor-not-allowed select-none"
+              className="w-full px-4 py-3 rounded-lg bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 text-zinc-400 dark:text-zinc-500 text-sm cursor-not-allowed select-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-2">새로운 닉네임</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">새로운 닉네임</label>
             <input
               type="text"
               required
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="변경할 닉네임을 입력해 주세요."
-              className="w-full px-4 py-3 rounded-lg bg-zinc-950/80 border border-zinc-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 text-zinc-100 placeholder-zinc-500 text-sm outline-none transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-emerald-500/80 focus:ring-2 focus:ring-emerald-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={isUpdatingProfile}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-semibold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/10 cursor-pointer"
           >
             {isUpdatingProfile ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -163,57 +163,57 @@ export default function ProfileEditForm() {
       </div>
 
       {/* 비밀번호 변경 카드 */}
-      <div className="relative group overflow-hidden rounded-2xl bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-700/80 hover:shadow-2xl hover:shadow-sky-950/10">
+      <div className="relative group overflow-hidden rounded-2xl bg-white dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/80 dark:border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-300/80 dark:hover:border-zinc-700/80 hover:shadow-xl hover:shadow-sky-500/5">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-sky-500/0 via-sky-500/40 to-sky-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400">
+          <div className="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-zinc-100">비밀번호 변경</h3>
-            <p className="text-xs text-zinc-400">안전한 계정 관리를 위해 주기적으로 변경하세요.</p>
+            <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">비밀번호 변경</h3>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">안전한 계정 관리를 위해 주기적으로 변경하세요.</p>
           </div>
         </div>
 
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">기존 비밀번호</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">기존 비밀번호</label>
             <input
               type="password"
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="현재 비밀번호를 입력하세요."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/30 text-zinc-100 placeholder-zinc-500 text-sm outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">새 비밀번호</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">새 비밀번호</label>
             <input
               type="password"
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="최소 6자 이상의 새 비밀번호."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/30 text-zinc-100 placeholder-zinc-500 text-sm outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">새 비밀번호 확인</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">새 비밀번호 확인</label>
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="새 비밀번호를 한번 더 입력하세요."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/30 text-zinc-100 placeholder-zinc-500 text-sm outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={isUpdatingPassword}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-zinc-950 font-semibold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-sky-500/20 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-bold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-sky-500/10 cursor-pointer"
           >
             {isUpdatingPassword ? (
               <Loader2 className="w-4 h-4 animate-spin" />
