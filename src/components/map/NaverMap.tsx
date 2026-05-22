@@ -87,13 +87,13 @@ export default function NaverMap({
     );
 
     // 초기 바운드 전달 (디바운스 없이 즉시)
-    updateBounds();
+    updateBoundsRef.current();
 
     return () => {
       naver.maps.Event.removeListener(dragEndListener);
       naver.maps.Event.removeListener(zoomChangedListener);
     };
-  }, [isLoaded, debouncedUpdateBounds, updateBounds]);
+  }, [isLoaded, debouncedUpdateBounds]);
 
   // 현재 줌과 바운드에 따라 클러스터 렌더링
   const renderClusters = useCallback(() => {
