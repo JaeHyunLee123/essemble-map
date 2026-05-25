@@ -113,4 +113,55 @@ describe('Next.js 16 Proxy 통합 인증 제어', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('location')).toBeNull();
   });
+
+  it('쿠키가 없거나 만료된 상태로 /api/admin/stats API 접근 시 403 Forbidden JSON을 반환해야 합니다.', () => {
+    const request = new NextRequest('http://localhost/api/admin/stats', {
+      method: 'GET',
+    });
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(403);
+    expect(response.headers.get('content-type')).toContain('application/json');
+  });
+
+  it('일반 유저가 /api/admin/stats API 접근 시 403 Forbidden JSON을 반환해야 합니다.', () => {
+    const validPayload = {
+      userId: 'user-1',
+      username: 'testuser',
+      role: 'user',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    };
+    const token = createMockJwt(validPayload);
+
+    const request = new NextRequest('http://localhost/api/admin/stats', {
+      method: 'GET',
+    });
+    request.cookies.set('refreshToken', token);
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(403);
+    expect(response.headers.get('content-type')).toContain('application/json');
+  });
+
+  it('어드민 유저가 /api/admin/stats API 접근 시 정상적으로 통과되어야 합니다.', () => {
+    const adminPayload = {
+      userId: 'admin-1',
+      username: 'adminuser',
+      role: 'admin',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    };
+    const token = createMockJwt(adminPayload);
+
+    const request = new NextRequest('http://localhost/api/admin/stats', {
+      method: 'GET',
+    });
+    request.cookies.set('refreshToken', token);
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(200);
+  });
 });
+
