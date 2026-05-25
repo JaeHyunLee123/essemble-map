@@ -83,4 +83,49 @@ describe('POST /api/auth/register', () => {
     expect(body.success).toBe(false);
     expect(body.error.code).toBe('DUPLICATE_USERNAME');
   });
+
+  it('클라이언트가 role을 admin으로 전달하더라도 무시하고 user로 저장해야 함', async () => {
+    const mockUser = {
+      username: 'eviladmin',
+      password: 'password123!',
+      nickname: '해커닉네임',
+      role: 'admin',
+    };
+
+    const request = new NextRequest('http://localhost/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(mockUser),
+    });
+
+    // 중복 검사 통과 (조회 결과 없음)
+    (db.select as any).mockReturnValue({
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([]),
+    });
+
+    // 비밀번호 해싱
+    (bcrypt.hash as any).mockResolvedValue('hashed_password');
+
+    const mockValues = vi.fn().mockReturnThis();
+
+    // DB 삽입 모킹
+    (db.insert as any).mockReturnValue({
+      values: mockValues,
+      returning: vi.fn().mockResolvedValue([{ id: 'uuid-evil', username: 'eviladmin', role: 'user' }]),
+    });
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.success).toBe(true);
+
+    // db.insert(users).values({ ... })에서 role이 user로 고정되어 전달되었는지 검증
+    expect(mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'user',
+      })
+    );
+  });
 });
+
