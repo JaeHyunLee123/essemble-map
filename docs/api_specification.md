@@ -45,6 +45,10 @@
   }
   ```
 - **Response:** `201 Created` / `400 Bad Request`
+- **Security Constraint:** 
+  - 클라이언트가 회원가입 시 임의의 `role` 값을 전달하더라도 백엔드 서버는 이를 철저히 무시하고 DB에 항상 `'user'` 권한으로 고정하여 저장해야 합니다.
+  - 최초 어드민 계정 권한은 회원가입 완료 후 Supabase 또는 SQL 직접 쿼리를 통해 수동으로 `'admin'` 역할을 부여받아야 합니다.
+
 
 ### 2.2 로그인
 - **Endpoint:** `POST /auth/login`
@@ -179,7 +183,25 @@
   }
   ```
 
-### 7.2 합주실 제보 상태 변경 (수락/거절)
+### 7.2 승인 완료된 합주실 목록 조회 (관리용)
+- **Endpoint:** `GET /admin/studios/active`
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id": "uuid-studio-2",
+        "name": "홍대 합주실",
+        "description": "접근성 최고...",
+        "mapUrl": "https://map.naver.com/p/entry/place/67890",
+        "createdAt": "2026-05-21T..."
+      }
+    ]
+  }
+  ```
+
+### 7.3 합주실 제보 상태 변경 (수락/거절/삭제)
 - **Endpoint:** `PATCH /admin/studios/:id/status`
 - **Request Body:**
   ```json
@@ -188,7 +210,11 @@
     "denyReason": "잘못된 정보입니다." // status가 deny일 때만 필요
   }
   ```
+- **Description:** 
+  - `pending` 상태의 합주실을 `active` 또는 `deny`로 상태 변경하여 승인/반려합니다.
+  - 이미 승인된(`active`) 합주실에 대해 이 API를 통해 `status`를 `deny`로 전송하면, 일반 유저 화면에서 노출되지 않는 '삭제/비활성화' 처리가 이루어집니다.
 
-### 7.3 장비 카테고리 관리 (CRUD) (MVP 제외)
-- 이번 MVP 버전에서는 장비 카테고리 관리 기능을 제공하지 않으며, 향후 고도화 시점에 구현함.
+### 7.4 장비 카테고리 관리 (CRUD) (MVP 제외)
+- 이번 MVP 버전에서는 장비 카테고리 관리 기능을 제공하지 않으며, 향후 고도화 시점에 구현합니다.
+
 

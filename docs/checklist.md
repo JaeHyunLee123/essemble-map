@@ -166,12 +166,20 @@
 
 ## 1. 어드민 API 구현
 - [ ] 총 유저 수 조회 API (`GET /api/admin/stats`) 구현
-- [ ] 수락 대기 중인 합주실 제보 목록 조회 API (`GET /api/admin/studios/pending`) 구현 (방/장비 제보 조회 로직 완전 배제)
-- [ ] 특정 합주실 상태(active, deny) 수락/반려 처리 API (`PATCH /api/admin/studios/:id/status`) 구현 (반려 시 `deny_reason` 필수 적용)
+- [ ] 수락 대기 중인 합주실 제보 목록 조회 API (`GET /api/admin/studios/pending`) 구현
+- [ ] 승인 완료된 합주실 목록 조회 API (`GET /api/admin/studios/active`) 구현
+- [ ] 특정 합주실 상태(active, deny) 수락/반려/삭제 처리 API (`PATCH /api/admin/studios/:id/status`) 구현 (이미 active 상태인 건을 deny로 전달할 시 지도에서 내려가는 삭제 기능 수행)
 
 ## 2. 보안 설정 및 어드민 UI 구성
-- [ ] Next.js Middleware를 활용한 `/admin/*` 및 `/api/admin/*` 라우트의 어드민 역할(role === "admin") 검증 및 차단 처리
-- [ ] 어드민 전용 레이아웃 및 대시보드 UI 개발
-- [ ] 수락 대기 중인 합주실 테이블 렌더링 및 개별 행마다 [수락], [거절] 액션 연동 (거절 시 반려 사유 모달 팝업 및 API 호출)
+- [ ] 회원가입 API(`POST /api/auth/register`) 내 `role` 강제 `'user'` 고정 처리 및 최초 어드민은 DB 수동 변경을 통해 지정하도록 설계
+- [ ] Next.js Middleware를 활용한 `/admin/*` 및 `/api/admin/*` 라우트의 어드민 역할(role === "admin") 검증 및 차단 처리 (`403 Forbidden` 및 홈 리다이렉트)
+- [ ] 어드민 전용 레이아웃 및 대시보드 UI 개발 (총 유저 수 통계 표시)
+- [ ] 제보 대기열(`pending`) 탭 및 승인 완료된 목록(`active`) 탭 전환 테이블 개발
+- [ ] 대기열 리스트 개별 행 클릭 시 상세 검토 팝업 모달 개발
+- [ ] 상세 검토 모달 내에 파싱된 위경도 좌표를 실시간 마킹하는 **좌표 검증용 미니 네이버 지도** 컴포넌트 임베딩 구현
+- [ ] 모달 내 [수락] 및 [거절] 액션 버튼 연동
+- [ ] 거절 액션 시 반려 사유 모달을 제공하며, 자주 쓰는 반려 사유 템플릿(상용구) 리스트 선택기 및 상세 사유 추가 입력 필드 조합 구현
+- [ ] 승인 완료된 목록 테이블의 각 행에 서비스 즉각 비활성화를 위한 [삭제] 버튼 배치 및 API 연동
+
 
 

@@ -74,7 +74,11 @@
 
 - [ ] `GET /api/admin/stats` (총 유저 수 조회) API 구현
 - [ ] `GET /api/admin/studios/pending` (대기 중인 합주실 제보 목록 조회) API 구현 (방/장비 제보 배제)
-- [ ] `PATCH /api/admin/studios/:id/status` (합주실 제보 수락/거절 상태 변경) API 구현 (방/장비 제보 배제)
-- [ ] `proxy.ts` 기반의 어드민 라우트 보호 및 Role 검증 연동
-- [ ] 어드민 대시보드 UI (통계 및 대기열 리스트 렌더링, 수락/거절 버튼 이벤트) 구현
+- [ ] `GET /api/admin/studios/active` (승인 완료된 합주실 목록 조회) API 구현
+- [ ] `PATCH /api/admin/studios/:id/status` (합주실 제보 수락/거절 및 승인 완료된 합주실 삭제 처리) API 구현
+- [ ] `proxy.ts` 기반의 어드민 라우트 보호 및 Role 검증 연동 (회원가입 시 role은 항상 user로 강제 고정)
+- [ ] 어드민 대시보드 UI (통계, 대기열 및 승인 완료 리스트 렌더링, 액션 버튼 이벤트) 구현
+- [ ] 상세 검토 모달 내 좌표 검증용 미니 네이버 지도 컴포넌트 임베딩 구현
+- [ ] 반려 처리 모달 내 자주 쓰는 반려 사유 템플릿(상용구) 선택 리스트 및 텍스트 조합 입력 폼 구현
+
 
