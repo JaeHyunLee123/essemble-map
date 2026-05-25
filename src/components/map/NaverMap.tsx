@@ -86,12 +86,32 @@ export default function NaverMap({
       debouncedUpdateBounds,
     );
 
+    // 지도가 완전히 초기화되거나 타일이 로드되어 레이아웃이 확정되었을 때 바운드를 전달
+    const initListener = naver.maps.Event.addListener(
+      map,
+      "init",
+      () => {
+        updateBoundsRef.current();
+      }
+    );
+
+    const tilesLoadedListener = naver.maps.Event.addListener(
+      map,
+      "tilesloaded",
+      () => {
+        updateBoundsRef.current();
+      }
+    );
+
     // 초기 바운드 전달 (디바운스 없이 즉시)
     updateBoundsRef.current();
 
     return () => {
       naver.maps.Event.removeListener(dragEndListener);
       naver.maps.Event.removeListener(zoomChangedListener);
+      naver.maps.Event.removeListener(initListener);
+      naver.maps.Event.removeListener(tilesLoadedListener);
+      mapRef.current = null;
     };
   }, [isLoaded, debouncedUpdateBounds]);
 
