@@ -51,11 +51,11 @@ export const useAuthStore = create<AuthState>()(
               isInitialized: true,
             });
           } else {
-            set({ isInitialized: true });
+            set({ user: null, accessToken: null, isInitialized: true });
           }
         } catch (error) {
           console.error("Auth initialization failed:", error);
-          set({ isInitialized: true });
+          set({ user: null, accessToken: null, isInitialized: true });
         }
       },
     }),
