@@ -1,7 +1,7 @@
 // 어드민 대시보드 및 페이지들을 통일된 디자인으로 감싸주는 레이아웃 컴포넌트.
 "use client";
 
-import { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,13 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, clearAuth } = useAuthStore();
+  const { user, isInitialized, initialize, clearAuth } = useAuthStore();
   const router = useRouter();
+
+  // 어드민 세션 복구 및 초기화 진행
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const handleLogout = async () => {
     try {
@@ -30,7 +35,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
 
-  // 비인가 렌더링 방지 (proxy가 1차 방어하지만 클라이언트 렌더링 2차 안전장치)
+  // 1. 아직 스토어가 초기화되지 않았을 때는 로딩 스피너로 안전하게 대기
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full border-t-2 border-indigo-500 border-r-2 border-r-transparent animate-spin" />
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">관리자 세션을 확인 중입니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. 초기화 완료 후 비인가 유저는 2차 거절 화면 표시
   if (!user || user.role !== "admin") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6 text-center">
