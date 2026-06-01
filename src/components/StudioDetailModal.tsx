@@ -1,9 +1,9 @@
 // 합주실 마커 클릭 시 나타나는 상세 정보 및 북마크 토글 모달 컴포넌트
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
 import { useToggleBookmark } from "@/hooks/queries/useBookmarks";
+import { useStudioDetail } from "@/hooks/queries/useStudios";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { BookmarkIcon, ExternalLinkIcon, StarIcon } from "lucide-react";
-import axios from "axios";
+
 
 interface StudioDetailModalProps {
   studioId: string | null;
@@ -26,24 +26,10 @@ export default function StudioDetailModal({
   studioId,
   onClose,
 }: StudioDetailModalProps) {
-  const { user, accessToken } = useAuthStore();
+  const { user } = useAuthStore();
 
   // 1. 합주실 상세 데이터 쿼리
-  const { data: studioResponse, isLoading, isError } = useQuery({
-    queryKey: ["studio", studioId],
-    queryFn: async () => {
-      if (!studioId) return null;
-      
-      const headers: Record<string, string> = {};
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      const response = await axios.get(`/api/studios/${studioId}`, { headers });
-      return response.data;
-    },
-    enabled: !!studioId,
-  });
+  const { data: studioResponse, isLoading, isError } = useStudioDetail(studioId);
 
   const studio = studioResponse?.success ? studioResponse.data : null;
 

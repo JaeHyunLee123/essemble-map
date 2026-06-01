@@ -1,6 +1,8 @@
-// 지도 영역(Bounding Box)을 기반으로 합주실 목록을 가져오는 TanStack Query 훅
+// Bounding Box 및 단일 상세 정보를 가져오는 TanStack Query 훅
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/lib/api-response";
+import { useAuthStore } from "@/stores/authStore";
+import axios from "axios";
 
 export interface MapStudio {
   id: string;
@@ -43,5 +45,39 @@ export function useStudios(params: FetchStudiosParams | null) {
     queryFn: () => fetchStudios(params!),
     enabled: !!params,
     staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
+  });
+}
+
+export interface StudioDetail {
+  id: string;
+  name: string;
+  mapUrl: string | null;
+  description: string | null;
+  images: string[];
+  lat: number;
+  lng: number;
+  bookmarked: boolean;
+}
+
+/**
+ * 단일 합주실 상세 정보 조회 쿼리 훅
+ */
+export function useStudioDetail(studioId: string | null) {
+  const { accessToken } = useAuthStore();
+
+  return useQuery<ApiResponse<StudioDetail>>({
+    queryKey: ["studio", studioId],
+    queryFn: async () => {
+      if (!studioId) throw new Error("합주실 ID가 누락되었습니다.");
+      
+      const headers: Record<string, string> = {};
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+
+      const response = await axios.get(`/api/studios/${studioId}`, { headers });
+      return response.data;
+    },
+    enabled: !!studioId,
   });
 }

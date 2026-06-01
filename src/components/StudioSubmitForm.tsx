@@ -4,8 +4,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
+import { useStudioSubmit } from "@/hooks/queries/useSubmissions";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import axios from "axios";
+
 import { Loader2Icon, MapPinIcon } from "lucide-react";
 
 // Zod 유효성 검사 스키마 정의
@@ -47,8 +47,8 @@ export default function StudioSubmitForm({
   open,
   onClose,
 }: StudioSubmitFormProps) {
-  const queryClient = useQueryClient();
   const { accessToken } = useAuthStore();
+  const submitMutation = useStudioSubmit();
 
   const {
     register,
@@ -64,40 +64,21 @@ export default function StudioSubmitForm({
     },
   });
 
-  // 합주실 제보 뮤테이션
-  const submitMutation = useMutation({
-    mutationFn: async (values: SubmitFormValues) => {
-      const response = await axios.post("/api/studios/submit", values, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      if (data?.success) {
-        toast.success(data.data.message || "제보가 정상 접수되었습니다.");
-        reset(); // 폼 리셋
-        onClose(); // 모달 닫기
-        // 지도나 제보 내역 등 무효화
-        queryClient.invalidateQueries({ queryKey: ["studios"] });
-        queryClient.invalidateQueries({ queryKey: ["userSubmissions"] });
-      }
-    },
-    onError: (error: any) => {
-      const errorMsg =
-        error.response?.data?.error?.message ||
-        "제보 등록 중 서버 에러가 발생했습니다.";
-      toast.error(errorMsg);
-    },
-  });
-
   const onSubmit = (values: SubmitFormValues) => {
     if (!accessToken) {
       toast.error("로그인이 만료되었습니다. 다시 로그인해 주십시오.");
       return;
     }
-    submitMutation.mutate(values);
+    submitMutation.mutate(values, {
+      onSuccess: (data) => {
+        toast.success(data.message || "제보가 정상 접수되었습니다.");
+        reset(); // 폼 리셋
+        onClose(); // 모달 닫기
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "제보 등록 중 에러가 발생했습니다.");
+      }
+    });
   };
 
   const handleClose = () => {
