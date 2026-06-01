@@ -215,3 +215,17 @@
 - [x] 전체 빌드 컴파일 무결성 검증 (`npm run build`)
 - [x] Vitest 테스트 스위트 무결함 검증 (`npm test`)
 - [x] 수동 E2E 인터랙션 검증 및 데이터 실시간 동기화 확인
+
+# Phase 10: 제보 내역 아키텍처 개선 (Refactoring) 체크리스트
+
+## 1. 신규 쿼리 훅 구현
+- [x] `src/hooks/queries/useSubmissions.ts` 신규 생성 및 한 줄 주석 추가
+- [x] `useUserSubmissions` 쿼리 훅 구현 (active/pending/deny 제보 내역 캐싱)
+
+## 2. 컴포넌트 씸(Seam) 연동 및 리팩토링
+- [x] `src/components/SubmissionList.tsx` 로컬 fetch 로직 제거 및 훅 연동
+
+## 3. 검증 및 무결성 확보
+- [x] 전체 빌드 컴파일 무결성 검증 (`npm run build`)
+- [x] Vitest 테스트 스위트 무결함 검증 (`npm test`)
+- [x] 수동 E2E 인터랙션 검증 및 데이터 실시간 동기화 확인

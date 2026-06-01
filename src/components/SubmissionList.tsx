@@ -1,54 +1,12 @@
 // 사용자가 제보한 합주실 목록과 승인 상태를 화이트모드 테마 기반 배지 목록으로 렌더링하는 컴포넌트
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/authStore";
-import { toast } from "sonner";
-import axios from "axios";
+import React from "react";
+import { useUserSubmissions } from "@/hooks/queries/useSubmissions";
 import { Send, Clock, CheckCircle2, AlertCircle, HelpCircle, Loader2 } from "lucide-react";
 
-interface Submission {
-  id: string;
-  type: string;
-  name: string;
-  status: "pending" | "active" | "deny";
-  denyReason: string | null;
-  createdAt: string;
-}
-
 export default function SubmissionList() {
-  const { accessToken } = useAuthStore();
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 제보 내역 조회
-  const fetchSubmissions = async () => {
-    try {
-      const response = await axios.get("/api/user/submissions", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const result = response.data;
-      if (result.success) {
-        setSubmissions(result.data);
-      } else {
-        toast.error("제보 내역을 불러오지 못했습니다.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("제보 내역을 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (accessToken) {
-      fetchSubmissions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  const { data: submissions = [], isLoading, isError } = useUserSubmissions();
 
   // 상태 배지 렌더러
   const renderStatusBadge = (status: "pending" | "active" | "deny") => {
@@ -83,6 +41,14 @@ export default function SubmissionList() {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
         <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold">제보 내역을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-20 text-zinc-500">
+        <p>제보 내역을 불러오는 중 오류가 발생했습니다.</p>
       </div>
     );
   }
