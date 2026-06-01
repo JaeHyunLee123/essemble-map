@@ -1,8 +1,9 @@
 // 합주실 마커 클릭 시 나타나는 상세 정보 및 북마크 토글 모달 컴포넌트
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
+import { useToggleBookmark } from "@/hooks/queries/useBookmarks";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +26,6 @@ export default function StudioDetailModal({
   studioId,
   onClose,
 }: StudioDetailModalProps) {
-  const queryClient = useQueryClient();
   const { user, accessToken } = useAuthStore();
 
   // 1. 합주실 상세 데이터 쿼리
@@ -47,64 +47,26 @@ export default function StudioDetailModal({
 
   const studio = studioResponse?.success ? studioResponse.data : null;
 
-  // 2. 북마크 토글 뮤테이션
-  const bookmarkMutation = useMutation({
-    mutationFn: async () => {
-      if (!studioId || !accessToken) return;
-      const response = await axios.post(
-        `/api/studios/${studioId}/bookmark`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      return response.data;
-    },
-    onMutate: async () => {
-      // 캐시 무효화 전, 즉각적인 반응성(낙관적 업데이트)을 줄 수 있으나, 단순 무효화도 매우 빠름.
-      // 여기서는 일단 취소 방지를 위해 관련 쿼리 취소 처리
-      await queryClient.cancelQueries({ queryKey: ["studio", studioId] });
-      
-      const previousStudioResponse = queryClient.getQueryData(["studio", studioId]);
-      
-      // 낙관적 업데이트 적용
-      if (previousStudioResponse) {
-        const cloned = JSON.parse(JSON.stringify(previousStudioResponse));
-        if (cloned.success && cloned.data) {
-          cloned.data.bookmarked = !cloned.data.bookmarked;
-        }
-        queryClient.setQueryData(["studio", studioId], cloned);
-      }
-
-      return { previousStudioResponse };
-    },
-    onError: (err, variables, context) => {
-      // 에러 시 롤백
-      if (context?.previousStudioResponse) {
-        queryClient.setQueryData(["studio", studioId], context.previousStudioResponse);
-      }
-      toast.error("북마크 처리에 실패했습니다.");
-    },
-    onSuccess: (data) => {
-      if (data?.success) {
-        toast.success(data.data.message);
-      }
-    },
-    onSettled: () => {
-      // 최종 서버 정합성을 위해 무효화
-      queryClient.invalidateQueries({ queryKey: ["studio", studioId] });
-      queryClient.invalidateQueries({ queryKey: ["userBookmarks"] });
-    },
-  });
+  // 2. 북마크 토글 뮤테이션 훅 사용
+  const toggleBookmark = useToggleBookmark();
 
   const handleBookmarkToggle = () => {
     if (!user) {
       toast.error("로그인이 필요한 서비스입니다.");
       return;
     }
-    bookmarkMutation.mutate();
+    if (!studioId) return;
+
+    toggleBookmark.mutate(studioId, {
+      onSuccess: (data) => {
+        if (data?.message) {
+          toast.success(data.message);
+        }
+      },
+      onError: (err: any) => {
+        toast.error(err.message || "북마크 처리에 실패했습니다.");
+      }
+    });
   };
 
   return (

@@ -195,9 +195,23 @@
 
 ## 2. 메인 에이전트 규칙 파일 연동
 - [x] `AGENTS.md` 파일 내에 `## Agent skills` 매핑 규칙 추가
-- [x] `CLAUDE.md` 리다이렉트 무결성 검증
-
-## 3. 기록 및 정합성 검증
+- [x] `docs/agents/domain.md` (단일 컨텍스트 도메인 가이드) 작성
 - [x] `docs/checklist.md` 체크리스트 파일 최신화
 - [x] `docs/context-notes.md` 컨텍스트 노트 최신화
 
+# Phase 9: 북마크 아키텍처 개선 (Refactoring) 체크리스트
+
+## 1. 신규 쿼리 및 뮤테이션 훅 구현
+- [x] `src/hooks/queries/useBookmarks.ts` 신규 생성 및 한 줄 주석 추가
+- [x] `useUserBookmarks` 쿼리 훅 구현 (active 합주실 북마크 목록 캐싱)
+- [x] `useToggleBookmark` 뮤테이션 훅 구현 및 낙관적 업데이트 로직 적용
+- [x] `["studio", studioId]` 및 `["userBookmarks"]` 캐시 동시 업데이트 및 에러 롤백 캡슐화
+
+## 2. 컴포넌트 씸(Seam) 연동 및 리팩토링
+- [x] `src/components/BookmarkList.tsx` 로컬 fetch 로직 제거 및 훅 연동
+- [x] `src/components/StudioDetailModal.tsx` 인라인 뮤테이션 및 낙관적 업데이트 제거 후 훅 연동
+
+## 3. 검증 및 무결성 확보
+- [x] 전체 빌드 컴파일 무결성 검증 (`npm run build`)
+- [x] Vitest 테스트 스위트 무결함 검증 (`npm test`)
+- [x] 수동 E2E 인터랙션 검증 및 데이터 실시간 동기화 확인

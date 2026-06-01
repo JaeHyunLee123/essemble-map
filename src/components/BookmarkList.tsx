@@ -1,87 +1,43 @@
 // 사용자가 북마크한 합주실 목록을 화이트모드 라이트 테마 기반 카드 그리드로 렌더링하는 컴포넌트
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/authStore";
+import React from "react";
+import { useUserBookmarks, useToggleBookmark } from "@/hooks/queries/useBookmarks";
 import { toast } from "sonner";
-import axios from "axios";
 import { MapPin, ExternalLink, BookmarkX, Loader2 } from "lucide-react";
 
-interface Studio {
-  id: string;
-  name: string;
-  mapUrl: string | null;
-  description: string | null;
-  images: string[];
-  lat: number;
-  lng: number;
-}
-
 export default function BookmarkList() {
-  const { accessToken } = useAuthStore();
-  const [bookmarks, setBookmarks] = useState<Studio[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 북마크 목록 가져오기
-  const fetchBookmarks = async () => {
-    try {
-      const response = await axios.get("/api/user/bookmarks", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const result = response.data;
-      if (result.success) {
-        setBookmarks(result.data);
-      } else {
-        toast.error("북마크 목록을 불러오지 못했습니다.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("북마크 목록을 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: bookmarks = [], isLoading, isError } = useUserBookmarks();
+  const toggleBookmarkMutation = useToggleBookmark();
 
   // 북마크 삭제(토글) 처리
-  const handleRemoveBookmark = async (studioId: string) => {
-    try {
-      const response = await axios.post(
-        `/api/studios/${studioId}/bookmark`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+  const handleRemoveBookmark = (studioId: string) => {
+    toggleBookmarkMutation.mutate(studioId, {
+      onSuccess: (data) => {
+        if (data && !data.bookmarked) {
+          toast.success("북마크가 해제되었습니다.");
         }
-      );
-      const result = response.data;
-      if (result.success && !result.data.bookmarked) {
-        toast.success("북마크가 해제되었습니다.");
-        // 로컬 상태에서 제거
-        setBookmarks((prev) => prev.filter((item) => item.id !== studioId));
-      } else {
-        toast.error("북마크 해제에 실패했습니다.");
+      },
+      onError: (error: any) => {
+        const errorMsg = error.message || "북마크 해제에 실패했습니다.";
+        toast.error(errorMsg);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("서버 오류가 발생했습니다.");
-    }
+    });
   };
-
-  useEffect(() => {
-    if (accessToken) {
-      fetchBookmarks();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-emerald-550 dark:text-emerald-500" />
         <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold">북마크한 합주실을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-20 text-zinc-500">
+        <p>북마크 목록을 불러오는 중 오류가 발생했습니다.</p>
       </div>
     );
   }
