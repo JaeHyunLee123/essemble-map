@@ -192,3 +192,17 @@ This is the step LLMs skip most often after "run tests". They guess from error k
 
 - 단, `src/components/ui/` 폴더 안에 있는 파일은 shadcn에서 제공한 파일 그대로 사용해야 하므로 이름을 변경하지 않고 예외로 둡니다.
 - 새로 만드는 컴포넌트 파일이나 기존 컴포넌트 파일을 수정할 때는 반드시 이 파스칼케이스 명명 규칙을 준수해야 합니다.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs for this repo live as GitHub issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The triage roles map directly to standard labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout with a global `CONTEXT.md` at the repo root. See `docs/agents/domain.md`.

@@ -185,3 +185,19 @@
 - [x] Zustand `authStore` 초기화(`initialize`) 시 토큰 갱신 에러 발생 시 세션 리셋(`clearAuth` 연동) 처리
 - [x] Zustand 스토어 인증 초기화 관련 단위 테스트 보강 및 무결함 검증
 - [x] 실제 로컬 개발 서버 및 클라이언트 환경 E2E 상호작용 검증 완료
+
+# Phase 8: 에이전트 협업 환경 구축 (Agent Skills Setup)
+
+## 1. 에이전트 전용 스캐폴딩 설정
+- [x] `docs/agents/issue-tracker.md` (GitHub 연동) 작성
+- [x] `docs/agents/triage-labels.md` (Triage 표준 라벨) 작성
+- [x] `docs/agents/domain.md` (단일 컨텍스트 도메인 가이드) 작성
+
+## 2. 메인 에이전트 규칙 파일 연동
+- [x] `AGENTS.md` 파일 내에 `## Agent skills` 매핑 규칙 추가
+- [x] `CLAUDE.md` 리다이렉트 무결성 검증
+
+## 3. 기록 및 정합성 검증
+- [x] `docs/checklist.md` 체크리스트 파일 최신화
+- [x] `docs/context-notes.md` 컨텍스트 노트 최신화
+
