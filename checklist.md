@@ -2,7 +2,7 @@
 # 합주실 제보 버튼 상시 노출 및 모바일 헤더 사이드바 개편 체크리스트
 
 ## 1. UI 컴포넌트 설치 및 기초 확장
-- [ ] shadcn `sheet` 컴포넌트 추가 (`npx shadcn@latest add sheet`)
+- [x] shadcn `sheet` 컴포넌트 추가 (`npx shadcn@latest add sheet`)
 - [ ] `src/components/auth/AuthModal.tsx` 컴포넌트 확장
   - [ ] 외부 제어(Controlled)를 위한 `open`, `onOpenChange` props 연동
   - [ ] 로그인 성공 시 부모 컴포넌트에 알릴 수 있는 `onSuccess` 콜백 추가 및 처리
