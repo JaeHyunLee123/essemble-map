@@ -5,6 +5,7 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { ERROR_CODES } from "@/lib/error-codes";
 import bcrypt from "bcryptjs";
 
 /**
@@ -16,7 +17,7 @@ export async function PATCH(request: NextRequest) {
     const user = getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json(
-        errorResponse("UNAUTHORIZED", "로그인이 필요합니다."),
+        errorResponse(ERROR_CODES.UNAUTHORIZED, "로그인이 필요합니다."),
         { status: 401 }
       );
     }
@@ -26,7 +27,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!currentPassword || !newPassword) {
       return NextResponse.json(
-        errorResponse("MISSING_FIELDS", "기존 비밀번호와 새 비밀번호를 모두 입력해주세요."),
+        errorResponse(ERROR_CODES.MISSING_FIELDS, "기존 비밀번호와 새 비밀번호를 모두 입력해주세요."),
         { status: 400 }
       );
     }
@@ -39,7 +40,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!currentUser) {
       return NextResponse.json(
-        errorResponse("USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
+        errorResponse(ERROR_CODES.USER_NOT_FOUND, "사용자를 찾을 수 없습니다."),
         { status: 404 }
       );
     }
@@ -49,7 +50,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!isPasswordMatch) {
       return NextResponse.json(
-        errorResponse("INVALID_PASSWORD", "기존 비밀번호가 일치하지 않습니다."),
+        errorResponse(ERROR_CODES.INVALID_PASSWORD, "기존 비밀번호가 일치하지 않습니다."),
         { status: 401 }
       );
     }
@@ -73,7 +74,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error("Password update error:", error);
     return NextResponse.json(
-      errorResponse("SERVER_ERROR", "서버 오류가 발생했습니다."),
+      errorResponse(ERROR_CODES.SERVER_ERROR, "서버 오류가 발생했습니다."),
       { status: 500 }
     );
   }

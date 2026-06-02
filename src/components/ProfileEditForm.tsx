@@ -5,7 +5,9 @@ import React, { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import axios from "axios";
-import { Loader2, KeyRound, UserRound, Check } from "lucide-react";
+import { Loader2, KeyRound, UserRound, Check, Eye, EyeOff } from "lucide-react";
+import { ERROR_MESSAGES, ErrorCode } from "@/lib/error-codes";
+import { cn } from "@/lib/utils";
 
 export default function ProfileEditForm() {
   const { user, accessToken, setAuth } = useAuthStore();
@@ -16,6 +18,15 @@ export default function ProfileEditForm() {
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{6,20}$/;
+  const isNewPasswordValid = passwordRegex.test(newPassword);
+  const isConfirmPasswordValid =
+    confirmPassword.length > 0 && newPassword === confirmPassword;
 
   // 1. 프로필(닉네임) 변경 요청
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -72,8 +83,8 @@ export default function ProfileEditForm() {
       toast.error("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
       return;
     }
-    if (newPassword.length < 6) {
-      toast.error("새 비밀번호는 최소 6자 이상이어야 합니다.");
+    if (!passwordRegex.test(newPassword)) {
+      toast.error("새 비밀번호는 영문, 숫자, 특수문자를 포함하여 6자 이상이어야 합니다.");
       return;
     }
 
@@ -95,13 +106,19 @@ export default function ProfileEditForm() {
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
+        setShowCurrentPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
       } else {
         toast.error(result.error.message || "비밀번호 변경에 실패했습니다.");
       }
     } catch (error: any) {
       console.error(error);
+      const code = error.response?.data?.error?.code as ErrorCode;
       const errMsg =
-        error.response?.data?.error?.message || "비밀번호 변경에 실패했습니다.";
+        (code && ERROR_MESSAGES[code]) ||
+        error.response?.data?.error?.message ||
+        "비밀번호 변경에 실패했습니다.";
       toast.error(errMsg);
     } finally {
       setIsUpdatingPassword(false);
@@ -178,36 +195,103 @@ export default function ProfileEditForm() {
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">기존 비밀번호</label>
-            <input
-              type="password"
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="현재 비밀번호를 입력하세요."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                required
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="현재 비밀번호를 입력하세요."
+                className="w-full px-4 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                {showCurrentPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">새 비밀번호</label>
-            <input
-              type="password"
-              required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="최소 6자 이상의 새 비밀번호."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="최소 6자 이상의 새 비밀번호."
+                className="w-full px-4 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                {showNewPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            <div
+              className={cn(
+                "text-xs flex items-center gap-1 mt-1 transition-colors duration-200",
+                isNewPasswordValid
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-zinc-500 dark:text-zinc-400"
+              )}
+            >
+              {isNewPasswordValid && <Check className="w-3.5 h-3.5" />}
+              <span>영문, 숫자, 특수문자 포함 6자 이상 (6~20자)</span>
+            </div>
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">새 비밀번호 확인</label>
-            <input
-              type="password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="새 비밀번호를 한번 더 입력하세요."
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="새 비밀번호를 한번 더 입력하세요."
+                className="w-full px-4 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/10 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            <div
+              className={cn(
+                "text-xs flex items-center gap-1 mt-1 transition-colors duration-200",
+                isConfirmPasswordValid
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-zinc-500 dark:text-zinc-400"
+              )}
+            >
+              {isConfirmPasswordValid && <Check className="w-3.5 h-3.5" />}
+              <span>
+                {!confirmPassword
+                  ? "비밀번호를 한번 더 입력해 주세요."
+                  : isConfirmPasswordValid
+                  ? "비밀번호가 일치합니다."
+                  : "비밀번호가 일치하지 않습니다."}
+              </span>
+            </div>
           </div>
 
           <button

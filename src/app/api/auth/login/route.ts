@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, generateRefreshToken } from "@/lib/jwt";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { ERROR_CODES } from "@/lib/error-codes";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     // 1. 필수 값 검증
     if (!username || !password) {
       return NextResponse.json(
-        errorResponse("MISSING_FIELDS", "아이디와 비밀번호를 입력해주세요."),
+        errorResponse(ERROR_CODES.MISSING_FIELDS, "아이디와 비밀번호를 입력해주세요."),
         { status: 400 }
       );
     }
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        errorResponse("INVALID_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다."),
+        errorResponse(ERROR_CODES.INVALID_CREDENTIALS, "아이디 또는 비밀번호가 일치하지 않습니다."),
         { status: 401 }
       );
     }
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     if (!isPasswordMatch) {
       return NextResponse.json(
-        errorResponse("INVALID_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다."),
+        errorResponse(ERROR_CODES.INVALID_CREDENTIALS, "아이디 또는 비밀번호가 일치하지 않습니다."),
         { status: 401 }
       );
     }
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
-      errorResponse("SERVER_ERROR", "서버 오류가 발생했습니다."),
+      errorResponse(ERROR_CODES.SERVER_ERROR, "서버 오류가 발생했습니다."),
       { status: 500 }
     );
   }
