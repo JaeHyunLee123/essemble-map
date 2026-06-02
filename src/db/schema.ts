@@ -22,6 +22,13 @@ export const userRoleEnum = pgEnum("user_role", ["admin", "user"]);
 /** Studios, Rooms, Equipments 공통 상태 값 */
 export const statusEnum = pgEnum("status", ["pending", "active", "deny"]);
 
+/** 합주실 정보 수정 요청 상태 값 */
+export const studioUpdateRequestStatusEnum = pgEnum("studio_update_request_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 // ============================================================
 // 테이블 정의
 // ============================================================
@@ -122,6 +129,26 @@ export const bookmarks = pgTable(
   (table) => [primaryKey({ columns: [table.userId, table.studioId] })]
 );
 
+/** 합주실 정보 수정 요청 테이블 */
+export const studioUpdateRequests = pgTable("studio_update_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  studioId: uuid("studio_id")
+    .notNull()
+    .references(() => studios.id),
+  name: varchar("name", { length: 200 }).notNull(),
+  mapUrl: text("map_url").notNull(),
+  description: text("description"),
+  lat: doublePrecision("lat").notNull(),
+  lng: doublePrecision("lng").notNull(),
+  status: studioUpdateRequestStatusEnum("status").notNull().default("pending"),
+  denyReason: text("deny_reason"),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // ============================================================
 // Relations 정의 (Drizzle ORM 쿼리 빌더용)
 // ============================================================
@@ -129,6 +156,7 @@ export const bookmarks = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   studios: many(studios),
   bookmarks: many(bookmarks),
+  studioUpdateRequests: many(studioUpdateRequests),
 }));
 
 export const studiosRelations = relations(studios, ({ one, many }) => ({
@@ -138,6 +166,7 @@ export const studiosRelations = relations(studios, ({ one, many }) => ({
   }),
   rooms: many(rooms),
   bookmarks: many(bookmarks),
+  studioUpdateRequests: many(studioUpdateRequests),
 }));
 
 export const roomsRelations = relations(rooms, ({ one, many }) => ({
@@ -184,3 +213,17 @@ export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
     references: [studios.id],
   }),
 }));
+
+export const studioUpdateRequestsRelations = relations(
+  studioUpdateRequests,
+  ({ one }) => ({
+    studio: one(studios, {
+      fields: [studioUpdateRequests.studioId],
+      references: [studios.id],
+    }),
+    createdBy: one(users, {
+      fields: [studioUpdateRequests.createdBy],
+      references: [users.id],
+    }),
+  })
+);
