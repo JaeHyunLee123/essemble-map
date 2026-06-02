@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { BookmarkIcon, ExternalLinkIcon, StarIcon } from "lucide-react";
+import { useState } from "react";
+import StudioUpdateRequestModal from "./StudioUpdateRequestModal";
 
 
 interface StudioDetailModalProps {
@@ -27,6 +29,7 @@ export default function StudioDetailModal({
   onClose,
 }: StudioDetailModalProps) {
   const { user } = useAuthStore();
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   // 1. 합주실 상세 데이터 쿼리
   const { data: studioResponse, isLoading, isError } = useStudioDetail(studioId);
@@ -53,6 +56,14 @@ export default function StudioDetailModal({
         toast.error(err.message || "북마크 처리에 실패했습니다.");
       }
     });
+  };
+
+  const handleUpdateRequestClick = () => {
+    if (!user) {
+      toast.error("로그인이 필요한 서비스입니다.");
+      return;
+    }
+    setIsUpdateModalOpen(true);
   };
 
   return (
@@ -121,7 +132,7 @@ export default function StudioDetailModal({
                   href={studio.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full"
+                  className="w-full flex-1"
                 >
                   <Button className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-5 font-semibold text-sm transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]">
                     <ExternalLinkIcon className="w-4 h-4" />
@@ -131,12 +142,25 @@ export default function StudioDetailModal({
               )}
               <Button
                 variant="outline"
+                onClick={handleUpdateRequestClick}
+                className="w-full sm:w-auto border-zinc-200 dark:border-zinc-800 rounded-xl py-5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 font-semibold"
+              >
+                정보 수정 제안
+              </Button>
+              <Button
+                variant="outline"
                 onClick={onClose}
                 className="w-full sm:w-auto border-zinc-200 dark:border-zinc-800 rounded-xl py-5 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 font-semibold"
               >
                 닫기
               </Button>
             </DialogFooter>
+
+            <StudioUpdateRequestModal
+              open={isUpdateModalOpen}
+              onClose={() => setIsUpdateModalOpen(false)}
+              studio={studio}
+            />
           </>
         )}
       </DialogContent>
