@@ -5,6 +5,7 @@ import { studios } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { parseNaverMapUrl, InvalidNaverMapUrlError } from "@/lib/naverMap";
 
 interface RouteParams {
   params: Promise<{ id: string }> | { id: string };
@@ -40,7 +41,8 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
     }
 
     // 3. 요청 본문 데이터 검증
-    const { status, denyReason } = await request.json();
+    const body = await request.json();
+    const { status, denyReason, name, description, mapUrl } = body;
 
     if (!status || (status !== "active" && status !== "deny")) {
       return NextResponse.json(
@@ -70,13 +72,48 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
     }
 
     // 5. 합주실 상태 업데이트
+    const updateFields: Record<string, any> = {
+      status,
+      denyReason: status === "deny" ? denyReason : null,
+      updatedAt: new Date(),
+    };
+
+    if (status === "active") {
+      if (name !== undefined) {
+        updateFields.name = name.trim();
+      }
+      if (description !== undefined) {
+        updateFields.description = description ? description.trim() : null;
+      }
+      if (mapUrl !== undefined) {
+        const trimmedMapUrl = mapUrl.trim();
+        updateFields.mapUrl = trimmedMapUrl;
+
+        // mapUrl이 기존과 다르면 위경도 파싱 진행
+        if (trimmedMapUrl !== existingStudio.mapUrl) {
+          try {
+            const parseResult = await parseNaverMapUrl(trimmedMapUrl);
+            updateFields.lat = parseResult.lat;
+            updateFields.lng = parseResult.lng;
+          } catch (error) {
+            if (error instanceof InvalidNaverMapUrlError) {
+              return NextResponse.json(
+                errorResponse("INVALID_MAP_URL", error.message),
+                { status: 400 }
+              );
+            }
+            return NextResponse.json(
+              errorResponse("INVALID_MAP_URL", "네이버 지도 링크를 파싱하는 도중 에러가 발생했습니다."),
+              { status: 400 }
+            );
+          }
+        }
+      }
+    }
+
     const [updatedStudio] = await db
       .update(studios)
-      .set({
-        status,
-        denyReason: status === "deny" ? denyReason : null,
-        updatedAt: new Date(),
-      })
+      .set(updateFields)
       .where(eq(studios.id, id))
       .returning();
 

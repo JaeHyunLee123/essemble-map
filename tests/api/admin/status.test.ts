@@ -17,6 +17,16 @@ vi.mock('@/lib/jwt', () => ({
   verifyToken: vi.fn(),
 }));
 
+vi.mock("@/lib/naverMap", () => ({
+  parseNaverMapUrl: vi.fn(),
+  InvalidNaverMapUrlError: class extends Error {
+    constructor(msg: string) {
+      super(msg);
+      this.name = "InvalidNaverMapUrlError";
+    }
+  },
+}));
+
 describe('PATCH /api/admin/studios/[id]/status', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -226,6 +236,74 @@ describe('PATCH /api/admin/studios/[id]/status', () => {
       expect.objectContaining({
         status: 'deny',
         denyReason: '서비스에서 내림',
+      })
+    );
+  });
+
+  it('어드민이 수정된 정보(name, description, mapUrl)를 함께 전달하면 이를 반영하고 지도 URL이 바뀌었다면 위경도를 재계산하여 승인해야 합니다.', async () => {
+    const request = new NextRequest('http://localhost/api/admin/studios/studio-1/status', {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer admin-token',
+      },
+      body: JSON.stringify({
+        status: 'active',
+        name: '수정된 어드민 이름',
+        description: '수정된 어드민 설명',
+        mapUrl: 'https://map.naver.com/p/entry/place/changed',
+      }),
+    });
+
+    (verifyToken as any).mockReturnValue({
+      userId: 'admin-1',
+      username: 'adminuser',
+      role: 'admin',
+    });
+
+    // DB select 모킹
+    (db.select as any).mockReturnValue({
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([{
+        id: 'studio-1',
+        status: 'pending',
+        mapUrl: 'https://map.naver.com/p/entry/place/original',
+      }]),
+    });
+
+    // naverMap 모킹
+    const { parseNaverMapUrl } = await import('@/lib/naverMap');
+    (parseNaverMapUrl as any).mockResolvedValue({ lat: 37.7, lng: 127.2 });
+
+    const mockUpdateSet = vi.fn().mockReturnThis();
+    (db.update as any).mockReturnValue({
+      set: mockUpdateSet,
+      where: vi.fn().mockReturnThis(),
+      returning: vi.fn().mockResolvedValue([{
+        id: 'studio-1',
+        status: 'active',
+        name: '수정된 어드민 이름',
+        description: '수정된 어드민 설명',
+        mapUrl: 'https://map.naver.com/p/entry/place/changed',
+        lat: 37.7,
+        lng: 127.2,
+      }]),
+    });
+
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'studio-1' }) });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.data.name).toBe('수정된 어드민 이름');
+    expect(parseNaverMapUrl).toHaveBeenCalledWith('https://map.naver.com/p/entry/place/changed');
+    expect(mockUpdateSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'active',
+        name: '수정된 어드민 이름',
+        description: '수정된 어드민 설명',
+        mapUrl: 'https://map.naver.com/p/entry/place/changed',
+        lat: 37.7,
+        lng: 127.2,
       })
     );
   });
