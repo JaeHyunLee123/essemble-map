@@ -8,7 +8,7 @@ export interface Submission {
   id: string;
   type: string;
   name: string;
-  status: "pending" | "active" | "deny";
+  status: "pending" | "active" | "deny" | "approved" | "rejected";
   denyReason: string | null;
   createdAt: string;
 }
@@ -70,6 +70,34 @@ export function useStudioSubmit() {
     onSuccess: () => {
       // 제보 성공 시 지도 데이터 및 제보 내역 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ["studios"] });
+      queryClient.invalidateQueries({ queryKey: ["userSubmissions"] });
+    },
+  });
+}
+
+/**
+ * 합주실 정보 수정 요청 제출 뮤테이션 훅
+ */
+export function useStudioUpdateRequest() {
+  const queryClient = useQueryClient();
+  const { accessToken } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async ({ studioId, values }: { studioId: string; values: SubmitFormValues }) => {
+      if (!accessToken) throw new Error("인증 정보가 만료되었습니다.");
+
+      const response = await axios.post(`/api/studios/${studioId}/update-request`, values, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const result: ApiResponse<{ id: string; name: string; status: string; message: string }> = response.data;
+      if (!result.success) {
+        throw new Error(result.error?.message || "수정 요청 등록 중 에러가 발생했습니다.");
+      }
+      return result.data;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userSubmissions"] });
     },
   });

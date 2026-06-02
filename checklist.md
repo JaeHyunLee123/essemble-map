@@ -1,28 +1,26 @@
-# 비밀번호 입력 개선 및 에러 처리 고도화 체크리스트
+<!-- 합주실 정보 수정 요청 및 승인 프로세스 구현 체크리스트 -->
+# 합주실 정보 수정 요청 및 승인 프로세스 구현 체크리스트
 
-## 1. 공통 코드 및 백엔드 반영
-- [x] 공통 에러 코드 파일 생성 (`src/lib/error-codes.ts`)
-- [x] 공통 응답 유틸리티 에러 타입 반영 (`src/lib/api-response.ts`)
-- [x] 로그인 API 라우트 에러 코드 적용 (`src/app/api/auth/login/route.ts`)
-- [x] 회원가입 API 라우트 에러 코드 적용 (`src/app/api/auth/register/route.ts`)
-- [x] 비밀번호 변경 API 라우트 에러 코드 적용 (`src/app/api/user/password/route.ts`)
+## 1. 데이터베이스 스키마 및 마이그레이션
+- [x] `src/db/schema.ts`에 `studio_update_request_status` enum 추가
+- [x] `src/db/schema.ts`에 `studio_update_requests` 테이블 및 relations 정의 추가
+- [x] 데이터베이스 마이그레이션 생성 및 반영 검증
 
-## 2. 로그인 폼 구현
-- [x] 비밀번호 평문 토글 버튼 추가 및 구현 (`src/components/auth/LoginForm.tsx`)
-- [x] Axios 에러 발생 시 서버 에러 코드를 파싱하여 공통 메시지로 토스트 출력 구현
+## 2. 백엔드 API 개발 및 TDD 단위 테스트
+- [x] `POST /api/studios/:id/update-request` (수정 요청 제출) 단위 테스트 작성 및 API 구현
+- [x] `GET /api/admin/studio-requests/pending` (어드민 대기열 조회) 단위 테스트 작성 및 API 구현
+- [x] `PATCH /api/admin/studio-requests/:id/status` (어드민 수정 요청 승인/반려) 단위 테스트 작성 및 API 구현
+- [x] 어드민 제보 승인 API `PATCH /api/admin/studios/:id/status`에서 수정 내용 반영이 가능하도록 기능 추가 및 테스트 보완
+- [x] `GET /api/user/submissions` (마이페이지 제보 내역)에 수정 요청 내역(`studio_update_request`) 병합 조회 로직 연동 및 테스트 보완
 
-## 3. 회원가입 폼 구현
-- [x] 비밀번호 및 비밀번호 확인 평문 토글 버튼 추가 및 구현 (`src/components/auth/RegisterForm.tsx`)
-- [x] 비밀번호 입력 실시간 정규식 검증 상태 표시 UI 구현 (초록색 체크 및 문구 노출)
-- [x] 비밀번호 확인 실시간 일치 검증 상태 표시 UI 구현 (초록색 체크 및 문구 노출)
-- [x] Axios 에러 발생 시 서버 에러 코드를 파싱하여 중복 예외 등 알맞은 문구로 토스트 출력 구현
+## 3. 프론트엔드 UI/UX 컴포넌트 개발
+- [x] 합주실 상세 모달 하단에 [정보 수정 제안] 버튼 추가 (로그인 상태 권한 처리)
+- [x] 수정 제안 폼 모달 개발 (원본 데이터 자동 로드 및 필드 값 변경 검증)
+- [x] 어드민 페이지 대시보드 내 "수정 요청 대기열" 탭 및 리스트 렌더링 추가
+- [x] 어드민용 수정 요청 검토 모달 개발 (원본 정보, 제안 정보, 어드민 편집 폼 3분할 뷰 및 액션 처리)
+- [x] 마이페이지 제보 내역 탭에 `studio_update_request` 타입 카드 및 승인/반려 상태 UI 렌더링 적용
 
-## 4. 마이페이지 프로필/비밀번호 변경 폼 구현
-- [x] 기존 비밀번호, 새 비밀번호, 새 비밀번호 확인 입력창 우측에 보이기/숨기기 토글 버튼 추가 및 구현 (`src/components/ProfileEditForm.tsx`)
-- [x] 새 비밀번호 입력 실시간 정규식 검증 상태 표시 UI 구현 (초록색 체크 및 문구 노출)
-- [x] 새 비밀번호 확인 실시간 일치 검증 상태 표시 UI 구현 (초록색 체크 및 문구 노출)
-- [x] Axios 에러 발생 시 서버 에러 코드를 파싱하여 기존 비밀번호 불일치 등 알맞은 문구로 토스트 출력 구현
-
-## 5. 검증 및 빌드
-- [x] 전체 빌드 및 컴파일 오류 여부 점검
-- [x] 요구사항에 맞게 각 기능이 제대로 동작하는지 최종 수동 테스트
+## 4. 최종 검증 및 빌드
+- [x] 백엔드 및 프론트엔드 전체 단위 테스트 실행 (`npm run test` 등)
+- [x] Next.js 전체 프로젝트 빌드 실행 (`npm run build`) 및 오류 없음 확인
+- [x] 최종 수동 시나리오 검증
