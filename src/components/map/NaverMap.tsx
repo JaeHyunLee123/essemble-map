@@ -40,10 +40,28 @@ export default function NaverMap({
 
   // 지도의 현재 영역을 부모 컴포넌트에 알리는 함수
   const updateBounds = useCallback(() => {
-    if (!mapRef.current || !onBoundsChange) return;
+    if (!mapRef.current) return;
     const currentZoom = mapRef.current.getZoom();
     setZoom(currentZoom);
-    onBoundsChange(mapRef.current.getBounds() as naver.maps.LatLngBounds);
+
+    // 로컬 스토리지에 중심 좌표 및 줌 레벨 저장
+    const center = mapRef.current.getCenter() as naver.maps.LatLng;
+    try {
+      localStorage.setItem(
+        "assemble-room-map-viewport",
+        JSON.stringify({
+          lat: center.lat(),
+          lng: center.lng(),
+          zoom: currentZoom,
+        })
+      );
+    } catch (e) {
+      console.error("Failed to save map viewport to localStorage", e);
+    }
+
+    if (onBoundsChange) {
+      onBoundsChange(mapRef.current.getBounds() as naver.maps.LatLngBounds);
+    }
   }, [onBoundsChange]);
 
   // 최신 updateBounds를 추적하는 Ref
@@ -63,10 +81,27 @@ export default function NaverMap({
   useEffect(() => {
     if (!isLoaded || !mapContainerRef.current || mapRef.current) return;
 
+    // 로컬 스토리지에서 마지막 위치 및 줌 불러오기
+    let initialCenter = new naver.maps.LatLng(37.5665, 126.978); // 기본 서울 시청 기준
+    let initialZoom = 14;
+
+    try {
+      const savedViewport = localStorage.getItem("assemble-room-map-viewport");
+      if (savedViewport) {
+        const { lat, lng, zoom: savedZoom } = JSON.parse(savedViewport);
+        if (typeof lat === "number" && typeof lng === "number" && typeof savedZoom === "number") {
+          initialCenter = new naver.maps.LatLng(lat, lng);
+          initialZoom = savedZoom;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse map viewport from localStorage", e);
+    }
+
     // 지도 초기화
     const mapOptions: naver.maps.MapOptions = {
-      center: new naver.maps.LatLng(37.5665, 126.978), // 서울 시청 기준
-      zoom: 14,
+      center: initialCenter,
+      zoom: initialZoom,
       minZoom: 6,
       maxZoom: 21,
     };
