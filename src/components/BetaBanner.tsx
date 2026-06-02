@@ -21,8 +21,11 @@ export default function BetaBanner() {
 
   if (!isVisible) return null;
 
-  const text = "합주실 지도 서비스는 현재 베타 버전입니다. 버그 제보는 jhyon123@gmail.com으로 부탁드립니다.";
-  const marqueeText = `${text} \u00a0\u00a0\u00a0\u00a0 • \u00a0\u00a0\u00a0\u00a0 `;
+  const text =
+    "합주실 지도 서비스는 현재 베타 버전입니다. 버그 제보는 jhyon123@gmail.com으로 부탁드립니다.";
+  const text2 =
+    "합주실 정보는 여러분의 제보로 만들어집니다. 많은 제보 부탁드립니다.";
+  const marqueeText = `${text} ${text2} \u00a0\u00a0\u00a0\u00a0 • \u00a0\u00a0\u00a0\u00a0 `;
 
   return (
     <div className="fixed top-16 left-0 right-0 z-40 bg-black/80 backdrop-blur-sm border-b border-zinc-800/50 text-white h-9 flex items-center justify-between overflow-hidden px-4 text-xs font-medium select-none">
@@ -33,7 +36,7 @@ export default function BetaBanner() {
           <span>{marqueeText}</span>
         </div>
       </div>
-      
+
       {/* 닫기 버튼 */}
       <button
         onClick={handleClose}
