@@ -14,56 +14,85 @@ import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
 import { Button } from "@/components/ui/button";
 
-export function AuthModal() {
-  const [open, setOpen] = useState(false);
+interface AuthModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: () => void;
+}
+
+export function AuthModal({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  onSuccess,
+}: AuthModalProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  const setOpen = (val: boolean) => {
+    if (isControlled) {
+      controlledOnOpenChange?.(val);
+    } else {
+      setInternalOpen(val);
+    }
+  };
 
   const handleSuccess = () => {
     setOpen(false);
+    onSuccess?.();
   };
+
+  const dialogContent = (
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>
+          {mode === "login" ? "로그인" : "회원가입"}
+        </DialogTitle>
+      </DialogHeader>
+      <div className="py-4">
+        {mode === "login" ? (
+          <LoginForm onSuccess={handleSuccess} />
+        ) : (
+          <RegisterForm onSuccess={handleSuccess} />
+        )}
+      </div>
+      <div className="text-center text-sm">
+        {mode === "login" ? (
+          <p>
+            계정이 없으신가요?{" "}
+            <button
+              onClick={() => setMode("register")}
+              className="text-primary underline font-medium"
+            >
+              회원가입
+            </button>
+          </p>
+        ) : (
+          <p>
+            이미 계정이 있으신가요?{" "}
+            <button
+              onClick={() => setMode("login")}
+              className="text-primary underline font-medium"
+            >
+              로그인
+            </button>
+          </p>
+        )}
+      </div>
+    </DialogContent>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">로그인 / 회원가입</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === "login" ? "로그인" : "회원가입"}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          {mode === "login" ? (
-            <LoginForm onSuccess={handleSuccess} />
-          ) : (
-            <RegisterForm onSuccess={handleSuccess} />
-          )}
-        </div>
-        <div className="text-center text-sm">
-          {mode === "login" ? (
-            <p>
-              계정이 없으신가요?{" "}
-              <button
-                onClick={() => setMode("register")}
-                className="text-primary underline font-medium"
-              >
-                회원가입
-              </button>
-            </p>
-          ) : (
-            <p>
-              이미 계정이 있으신가요?{" "}
-              <button
-                onClick={() => setMode("login")}
-                className="text-primary underline font-medium"
-              >
-                로그인
-              </button>
-            </p>
-          )}
-        </div>
-      </DialogContent>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button variant="outline">로그인 / 회원가입</Button>
+        </DialogTrigger>
+      )}
+      {dialogContent}
     </Dialog>
   );
 }
+
