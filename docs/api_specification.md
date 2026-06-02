@@ -101,10 +101,19 @@
   - `description` (string, optional): 설명
 - **Response:** `201 Created` / `400 Bad Request` (네이버 지도 파싱 실패 시)
 
-### 3.4 특정 합주실에 방(Room) 추가 제보 (MVP 제외)
+### 3.4 합주실 정보 수정 요청 제출
+- **Endpoint:** `POST /studios/:id/update-request`
+- **Authentication:** Required
+- **Request Body (JSON):**
+  - `name` (string): 수정 제안할 합주실 이름
+  - `mapUrl` (string): 수정 제안할 네이버 지도 URL (필수)
+  - `description` (string, optional): 수정 제안할 설명
+- **Response:** `201 Created` / `400 Bad Request` (네이버 지도 파싱 실패 시)
+
+### 3.5 특정 합주실에 방(Room) 추가 제보 (MVP 제외)
 - **Endpoint:** `POST /studios/:id/rooms` (이번 MVP 버전에서는 연동되지 않으며, 추후 고도화 시점에 구현함)
 
-### 3.5 특정 방에 장비(Equipment) 추가 제보 (MVP 제외)
+### 3.6 특정 방에 장비(Equipment) 추가 제보 (MVP 제외)
 - **Endpoint:** `POST /rooms/:id/equipments` (이번 MVP 버전에서는 연동되지 않으며, 추후 고도화 시점에 구현함)
 
 
@@ -201,20 +210,64 @@
   }
   ```
 
-### 7.3 합주실 제보 상태 변경 (수락/거절/삭제)
+### 7.3 합주실 제보 상태 변경 (수락/거절/삭제) 및 정보 수정 승인
 - **Endpoint:** `PATCH /admin/studios/:id/status`
 - **Request Body:**
   ```json
   {
-    "status": "deny", // "active" | "deny"
-    "denyReason": "잘못된 정보입니다." // status가 deny일 때만 필요
+    "status": "active", // "active" | "deny"
+    "denyReason": "잘못된 정보입니다.", // status가 deny일 때만 필요
+    "name": "수정된 합주실 이름 (선택)",
+    "description": "수정된 설명 (선택)",
+    "mapUrl": "수정된 네이버 지도 URL (선택)"
   }
   ```
 - **Description:** 
   - `pending` 상태의 합주실을 `active` 또는 `deny`로 상태 변경하여 승인/반려합니다.
+  - 승인(`active`) 처리 시, `name`, `description`, `mapUrl` 등 어드민이 수정한 값을 바디로 함께 전달하면 원본 테이블에 해당 정보가 반영됩니다. (네이버 지도 URL 변경 시 위경도 자동 재계산 포함)
   - 이미 승인된(`active`) 합주실에 대해 이 API를 통해 `status`를 `deny`로 전송하면, 일반 유저 화면에서 노출되지 않는 '삭제/비활성화' 처리가 이루어집니다.
 
-### 7.4 장비 카테고리 관리 (CRUD) (MVP 제외)
+### 7.4 수락 대기 중인 합주실 수정 요청 목록 조회
+- **Endpoint:** `GET /admin/studio-requests/pending`
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id": "uuid-request-1",
+        "studioId": "uuid-studio-1",
+        "originalStudio": {
+          "name": "홍대 합주실 (기존)",
+          "description": "접근성 최고... (기존)",
+          "mapUrl": "https://map.naver.com/..."
+        },
+        "name": "홍대 합주실 (수정제안)",
+        "description": "접근성 최고... (수정제안)",
+        "mapUrl": "https://map.naver.com/...",
+        "createdAt": "2026-06-02T..."
+      }
+    ]
+  }
+  ```
+
+### 7.5 합주실 수정 요청 상태 변경 (수락/거절)
+- **Endpoint:** `PATCH /admin/studio-requests/:id/status`
+- **Request Body:**
+  ```json
+  {
+    "status": "approved", // "approved" | "rejected"
+    "denyReason": "반려 사유입니다.", // status가 rejected일 때만 필요
+    "name": "최종 승인될 합주실 이름 (선택)",
+    "description": "최종 승인될 설명 (선택)",
+    "mapUrl": "최종 승인될 네이버 지도 URL (선택)"
+  }
+  ```
+- **Description:**
+  - 유저가 제출한 수정 요청서(Pending)의 상태를 `approved` 또는 `rejected`로 변경합니다.
+  - `approved` 승인 처리 시, 최종 합의된 필드 값을 바탕으로 원본 합주실 레코드(`studios`) 정보를 업데이트하고 수정 요청서의 상태를 완료 처리합니다. (마찬가지로 네이버 지도 URL 변경 시 위경도 자동 재계산 포함)
+
+### 7.6 장비 카테고리 관리 (CRUD) (MVP 제외)
 - 이번 MVP 버전에서는 장비 카테고리 관리 기능을 제공하지 않으며, 향후 고도화 시점에 구현합니다.
 
 
