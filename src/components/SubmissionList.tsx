@@ -9,7 +9,7 @@ export default function SubmissionList() {
   const { data: submissions = [], isLoading, isError } = useUserSubmissions();
 
   // 상태 배지 렌더러
-  const renderStatusBadge = (status: "pending" | "active" | "deny") => {
+  const renderStatusBadge = (status: "pending" | "active" | "deny" | "approved" | "rejected") => {
     switch (status) {
       case "active":
         return (
@@ -18,11 +18,25 @@ export default function SubmissionList() {
             승인 완료
           </span>
         );
+      case "approved":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-250 dark:border-indigo-900/30 text-indigo-700 dark:text-indigo-400">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            수정 승인됨
+          </span>
+        );
       case "deny":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/20 border border-rose-250 dark:border-rose-900/30 text-rose-700 dark:text-rose-400">
             <AlertCircle className="w-3.5 h-3.5" />
             반려됨
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/20 border border-rose-250 dark:border-rose-900/30 text-rose-700 dark:text-rose-400">
+            <AlertCircle className="w-3.5 h-3.5" />
+            수정 반려됨
           </span>
         );
       case "pending":
@@ -77,9 +91,9 @@ export default function SubmissionList() {
           {/* 장식선 효과 */}
           <div
             className={`absolute top-0 left-0 w-full h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-              item.status === "active"
+              item.status === "active" || item.status === "approved"
                 ? "bg-gradient-to-r from-emerald-500/0 via-emerald-500/40 to-emerald-500/0"
-                : item.status === "deny"
+                : item.status === "deny" || item.status === "rejected"
                 ? "bg-gradient-to-r from-rose-500/0 via-rose-500/40 to-rose-500/0"
                 : "bg-gradient-to-r from-amber-500/0 via-amber-500/40 to-amber-500/0"
             }`}
@@ -89,7 +103,7 @@ export default function SubmissionList() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-extrabold tracking-wider uppercase px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-650 dark:text-zinc-400">
-                  {item.type === "studio" ? "합주실 제보" : item.type}
+                  {item.type === "studio" ? "합주실 제보" : item.type === "studio_update_request" ? "정보 수정 제안" : item.type}
                 </span>
                 <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
                   {new Date(item.createdAt).toLocaleDateString("ko-KR", {
@@ -110,7 +124,7 @@ export default function SubmissionList() {
           </div>
 
           {/* 반려 사유 카드 렌더링 */}
-          {item.status === "deny" && item.denyReason && (
+          {(item.status === "deny" || item.status === "rejected") && item.denyReason && (
             <div className="mt-4 flex gap-3 p-3.5 rounded-xl border border-rose-200/60 dark:border-rose-500/10 bg-rose-50/70 dark:bg-rose-500/5 text-rose-700 dark:text-rose-300 text-xs leading-relaxed transition-all group-hover:border-rose-350 dark:group-hover:border-rose-500/20">
               <HelpCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <div className="space-y-0.5">
