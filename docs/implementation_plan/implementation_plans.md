@@ -7,15 +7,19 @@
 7: ## 🔗 파트별 상세 구현 계획 문서
 8: 
 9: - [인증 및 DB 설정 계획](./auth_implementation_plan.md)
-10: - [데이터 크롤러 및 적재 계획](./crawler_implementation_plan.md)
-11: - [지도 및 클러스터링 계획](./map_implementation_plan.md)
-12: - [합주실 정보 및 제보 계획](./studio_implementation_plan.md)
-13: - [마이페이지 및 유저 기능 계획](./user_implementation_plan.md)
-14: - [어드민 페이지 기능 계획](./admin_implementation_plan.md)
-15: - [합주실 정보 수정 요청 및 승인 계획](./studio_update_request_plan.md)
-16: - [테스트 개발 및 고도화 계획](./test_implementation_plan.md)
-17: 
-18: ---
+## 🔗 파트별 상세 구현 계획 문서
+
+- [인증 및 DB 설정 계획](./auth_implementation_plan.md)
+- [데이터 크롤러 및 적재 계획](./crawler_implementation_plan.md)
+- [지도 및 클러스터링 계획](./map_implementation_plan.md)
+- [합주실 정보 및 제보 계획](./studio_implementation_plan.md)
+- [마이페이지 및 유저 기능 계획](./user_implementation_plan.md)
+- [어드민 페이지 기능 계획](./admin_implementation_plan.md)
+- [합주실 정보 수정 요청 및 승인 계획](./studio_update_request_plan.md)
+- [합주실 제보 버튼 및 모바일 헤더 개편 계획](./header_and_mobile_menu_plan.md)
+- [테스트 개발 및 고도화 계획](./test_implementation_plan.md)
+
+---
 
 ## 📝 핵심 구현 지침 (Guidelines)
 
