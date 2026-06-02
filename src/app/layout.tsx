@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import Header from "@/components/Header";
+import BetaBanner from "@/components/BetaBanner";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "합주실 지도",
+  title: "합주실 지도 Beta",
   description: "내 주변 합주실을 쉽고 빠르게 찾으세요.",
 };
 
@@ -36,9 +38,9 @@ export default function RootLayout({
         <QueryProvider>
           <AuthInitializer />
           <Header />
-          <div className="flex-1 flex flex-col">
-            {children}
-          </div>
+          <BetaBanner />
+
+          <div className="flex-1 flex flex-col">{children}</div>
           <Toaster position="top-center" richColors />
         </QueryProvider>
       </body>
