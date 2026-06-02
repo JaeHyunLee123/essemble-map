@@ -34,7 +34,7 @@ describe('GET /api/user/submissions', () => {
     expect(body.error.code).toBe('UNAUTHORIZED');
   });
 
-  it('성공적으로 유저의 제보 내역을 모두 가져오고, deny 상태의 반려 사유 및 type: studio 속성을 포함해 200 OK를 반환해야 합니다.', async () => {
+  it('성공적으로 유저의 제보 내역과 정보 수정 요청 내역을 가져오고, 생성일 기준 내림차순 정렬 및 타입(studio, studio_update_request)과 반려사유가 잘 반영되어 200 OK를 반환해야 합니다.', async () => {
     const request = new NextRequest('http://localhost/api/user/submissions', {
       method: 'GET',
       headers: {
@@ -44,9 +44,8 @@ describe('GET /api/user/submissions', () => {
 
     (verifyToken as any).mockReturnValue({ userId: 'user-1', username: 'testuser', role: 'user' });
 
-    // Drizzle 체이닝 모킹
-    // db.select().from(studios).where(...)
-    const mockSubmissionsResult = [
+    // Drizzle 체이닝 모킹 (2회 호출 대응)
+    const mockStudiosResult = [
       {
         id: 'studio-1',
         name: '제보합주실A',
@@ -61,18 +60,26 @@ describe('GET /api/user/submissions', () => {
         denyReason: '잘못된 위치 정보입니다.',
         createdAt: new Date('2026-05-11T00:00:00.000Z'),
       },
+    ];
+
+    const mockUpdateRequestsResult = [
       {
-        id: 'studio-3',
-        name: '제보합주실C',
-        status: 'pending',
-        denyReason: null,
+        id: 'req-1',
+        name: '수정제안합주실X',
+        status: 'rejected',
+        denyReason: '부적절한 이름 수정 제안입니다.',
         createdAt: new Date('2026-05-12T00:00:00.000Z'),
       },
     ];
 
-    (db.select as any).mockReturnValue({
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockResolvedValue(mockSubmissionsResult),
+    let callCount = 0;
+    (db.select as any).mockImplementation(() => {
+      callCount++;
+      const currentResult = callCount === 1 ? mockStudiosResult : mockUpdateRequestsResult;
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue(currentResult),
+      };
     });
 
     const response = await GET(request);
@@ -82,16 +89,22 @@ describe('GET /api/user/submissions', () => {
     expect(body.success).toBe(true);
     expect(body.data).toHaveLength(3);
     
-    // type: 'studio' 검증
-    expect(body.data[0].type).toBe('studio');
+    // 생성일 내림차순 정렬 검증 (최신순: req-1(05-12) -> studio-2(05-11) -> studio-1(05-10))
+    expect(body.data[0].id).toBe('req-1');
+    expect(body.data[1].id).toBe('studio-2');
+    expect(body.data[2].id).toBe('studio-1');
+
+    // 타입 검증
+    expect(body.data[0].type).toBe('studio_update_request');
     expect(body.data[1].type).toBe('studio');
     expect(body.data[2].type).toBe('studio');
 
-    // deny 상태 및 반려사유 검증
-    const denyItem = body.data.find((item: any) => item.id === 'studio-2');
-    expect(denyItem.status).toBe('deny');
-    expect(denyItem.denyReason).toBe('잘못된 위치 정보입니다.');
+    // 반려 상태 및 반려사유 검증
+    expect(body.data[0].status).toBe('rejected');
+    expect(body.data[0].denyReason).toBe('부적절한 이름 수정 제안입니다.');
+    expect(body.data[1].status).toBe('deny');
+    expect(body.data[1].denyReason).toBe('잘못된 위치 정보입니다.');
 
-    expect(db.select).toHaveBeenCalled();
+    expect(db.select).toHaveBeenCalledTimes(2);
   });
 });

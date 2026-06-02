@@ -1,7 +1,7 @@
 // 사용자가 제보한 합주실 내역 목록을 조회하는 API 핸들러
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { studios } from "@/db/schema";
+import { studios, studioUpdateRequests } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/api-response";
@@ -21,13 +21,19 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. 유저가 제보한 합주실 조회 (pending, active, deny 전체)
-    const list = await db
+    const studioList = await db
       .select()
       .from(studios)
       .where(eq(studios.createdBy, user.userId));
 
-    // 3. 응답 객체 변환 (type: 'studio' 기본 포함, 반려사유 포함)
-    const mapped = list.map((item) => ({
+    // 3. 유저가 제안한 합주실 정보 수정 요청 조회 (pending, approved, rejected 전체)
+    const updateRequestList = await db
+      .select()
+      .from(studioUpdateRequests)
+      .where(eq(studioUpdateRequests.createdBy, user.userId));
+
+    // 4. 응답 객체 변환 (type: 'studio' / 'studio_update_request')
+    const mappedStudios = studioList.map((item) => ({
       id: item.id,
       type: "studio",
       name: item.name,
@@ -35,6 +41,20 @@ export async function GET(request: NextRequest) {
       denyReason: item.status === "deny" ? item.denyReason : null,
       createdAt: item.createdAt,
     }));
+
+    const mappedUpdateRequests = updateRequestList.map((item) => ({
+      id: item.id,
+      type: "studio_update_request",
+      name: item.name,
+      status: item.status,
+      denyReason: item.status === "rejected" ? item.denyReason : null,
+      createdAt: item.createdAt,
+    }));
+
+    // 병합 및 최신순 정렬
+    const mapped = [...mappedStudios, ...mappedUpdateRequests].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
     return NextResponse.json(successResponse(mapped));
   } catch (error) {
