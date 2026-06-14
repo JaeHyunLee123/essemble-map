@@ -132,7 +132,7 @@ This is the step LLMs skip most often after "run tests". They guess from error k
 
 
 ## 개발 시 참고해야하는 문서들
-- 개발 시 항상 @./docs/implementation_plans.md 및 이 문서에 링크된 문서 참고
+- 개발 시 항상 @./docs/implementation_plan/implementation_plans.md 및 이 문서에 링크된 문서 참고
 
 ## 개발 시 사용해야하는 스킬들
 
